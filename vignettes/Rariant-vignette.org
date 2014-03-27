@@ -1,0 +1,1236 @@
+#+TITLE: Comparative Identification and Assessment of Single Nucleotide Variants Through Shifts in Base Call Frequencies
+#+AUTHOR: Julian Gehring, Simon Anders, Bernd Klaus (EMBL Heidelberg)
+
+#+LATEX_CLASS: biocKnitrRnwPlain
+#+LATEX_HEADER: \usepackage[nottoc,numbib]{tocbibind}
+#+LATEX_HEADER: \usepackage{helvet}
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://www.ebi.ac.uk/~jgehring/css/bioc.css" />
+#+INFOJS_OPT: view:showall toc:t ftoc:t
+
+#+MACRO: M @@latex:\$1{@@$2@@latex:}@@
+#+MACRO: R @@latex:\R{}@@
+#+MACRO: Bioconductor @@latex:\Bioconductor{}@@
+
+#+COMMENT: This is only present within latex
+#+BEGIN_LaTeX
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Rariant - PDF}
+%\VignettePackage{Rariant}
+#+END_LaTeX
+
+#+COMMENT: This is only present within html
+#+BEGIN_HTML
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Rariant - HTML}
+%\VignettePackage{Rariant}
+-->
+#+END_HTML
+
+#+COMMENT: if ':exports none', the code block is not exported to the vignette templates 
+#+BEGIN_SRC R :ravel echo=FALSE, results='hide' :exports code
+set.seed(1)
+library(knitr)
+opts_chunk$set(comment = "  ", fig.path = "", fig.align = "center", out.width = "90%", indent = 10, cache = FALSE, cache.path = "../cache", out.width = "1\\columnwidth")
+## out.width = "1\\columnwidth"
+## uncomment options for HTML output, one of them breaks the image export
+## background = "#FFFFFF", dev = 'pdf'
+#+END_SRC
+
+#+BEGIN_HTML
+<!--begin.rcode setup
+library(knitr)
+# to base64 encode images
+opts_knit$set(upload.fun = image_uri)
+end.rcode-->
+#+END_HTML
+
+
+* Motivation
+
+The advances in high-throughput nucleotide sequencing have lead to new
+possibilities of identifying genomic alterations which is of particular interest
+for cancer research.  While the detection of genomic variants is often conducted
+by comparing against a population-based reference sequence (as the human GRCh
+37), in the investigation of tumors a comparison between matched samples is
+predominantly pursued.  Considering a test sample $T$ and a control sample $C$,
+the aim is to identify single nucloetide variants (SNVs) which show significant
+changes between the two.  In the past, this was generally applied for comparing
+a tumor sample against a matched normal/constitutive sample of the same patient,
+focusing on alterations that may have occurred in the transition to the
+cancerous tissue, and therefore often termed /somatic/ variants.  However, a
+broader range of questions can be addressed by extending the focus to include
+genomic changes of temporally or spatially separated samples to each other, to
+investigate tumor evolution and subclonal shifts cite:yates_evolution_2012.
+
+Extending the scope of comparative variant analyses in a cancer related setting
+may require a accompanying change in definitions.  In the classical tumor
+versus normal setting, a /somatic/ event is characterized by both the presence
+of the variant in the tumor and the absence in the matched normal
+[[cite:roberts_comparative_2013]].  This definition will not be satisfactory for
+comparing different tumor stages against each other.  If we imagine two stages
+of a tumor haboring multiple subclones, variants may be present in both stages
+with changing abundances.  Here, the classical definition of a /somatic/ variant
+would result in missing the event.  In the following, we will therefore focus on
+estimating the shift in variant allele frequencies between a test and a control
+samples.  The classical somatic definition requiring the variant to be absent in the
+control constitutes a special case of this.
+
+Numerous approaches focus on more narrowly defined somatic comparisons,
+motivated by scientific questions in the field of cancer genomics
+[[cite:kim_comparing_2013]] [[cite:roberts_comparative_2013]].  To our knowledge,
+existing methods do not allow an explicit statement about the absence of a
+putative variant in a sample, and a clear distinction whether a /negative/ call
+results from a true negative site or the lack of statistical power to detect it.
+As an example, image a variant calling approach using a hypothesis test with the
+null hypothesis that the variant frequencies at a locus are identical for both
+samples.  While a significant p-value provides evidence for the presence of a
+variant, inverting this argument does not work: A non-significant p-value can
+both be indicative of the absence or insufficient power.  Furthermore, most
+methods return only a point estimate for the variant frequency in the tumor,
+without stating the confidence of the estimate.  However, this information would
+be critical to reliably differentiate between variants arising from competing
+subclonal populations.
+
+With the =Rariant= package, we pursue a generalized approach for identifying and
+quantifying SNV alterations from high-throughput sequencing data in comparative
+settings. By focusing on shifts of the non-consensus base call frequencies,
+events like loss of heterozygosity and clonal expansions in addition to somatic
+variants can be detected.  In the following, we will 1) outline the methodological
+framework, 2) provide an example workflow on how to obtain a call set starting
+from short-read alignments, and 3) illustrate potential benefits of the methods on
+a biological cancer data set.  This methodology can be used for a high
+performance identification of variant sites as well as to quantitatively assess
+the presence or absence in comparisons between matched samples.
+
+
+* Methodology
+
+** Comparative shift of non-consensus base call frequencies
+
+Starting with a set of aligned reads we observe the sequencing depth $N^{S}_{i}$
+and the number of non-consensus base calls $K^{S}_{i}$ for a sample $S$ at
+position $i$.  Non-consensus is here defined as base calls that differ from the
+consensus sequence, which can be either the reference sequence or, in a
+comparative setting, the most abundant base call in the control sample.  The
+non-consensus rate $p^{S}_{i}$ in a sample can then be estimated as
+
+$$\hat{p}^{S}_{i} = \frac{K^{S}_{i}}{N^{S}_{i}}$$
+
+for sites with $N^{S}_{i} > 0$.  Since $K^{S}_{i} \leq N^{S}_{i}$, the rates are
+bound to the range $[0,1]$.
+
+#+COMMENT: What should the CI for N == 0 look like?
+
+It should be noted that the non-consensus rates are regarded as
+nucleotide-unspecific in this context.  However, we could also consider a
+nucleotide-specific mismatch rate $p^{S}_{ij}$ for base $j$, for which all
+arguments outlined here can be directly applied.
+
+The true non-consensus rate
+
+$$p^{S}_{i} = v^{S}_{i} + e^{S}_{i}$$
+
+#+COMMENT: p = K/N = V/N + E/N = (V+E)/N
+
+comprises the presence of a putative variant with a frequency $v^{S}_{i}$ and a
+technical error rate $e^{S}_{i}$.  In order to detect and describe the change in
+the variant frequency, we focus on the shift $d_{i}$ in non-consensus rates
+as the difference of the rates between the test and control samples, which we
+estimate as
+
+$$\hat{d}_{i} = \hat{p}^{T}_{i} - \hat{p}^{C}_{i}.$$
+
+Assuming that the true site-specific technical error rates are identical between
+the two matched samples, the difference of the rates yields an unbiased estimate
+for the change in the variant frequency.  Thus, positions not haboring
+biological alterations will results in $\hat{d}_{i} \approx 0$.
+
+
+** Confidence intervals
+
+Distinguishing biological variants from technical artifacts requires knowledge
+about the variance of the point estimate $\hat{d_{i}}$.  By constructing a
+confidence interval (CI) for $d_{i}$ with confidence level $\beta$
+[[cite:agresti_categorical_2013]], we assess the certainty of the estimated shift in
+non-consensus frequencies.  The probability of observing values outside the
+confidence interval is less than $\alpha = 1 - \beta$.  This is in concordance
+with the type I or $\alpha$ error definition in statistical testing.
+
+Under the assumption that the non-consensus counts $K^{S}_{i}$ in our samples
+follow binomial distributions with parameters $p^{S}_{i}$ and $N^{S}_{i}$,
+several methods have been established for estimating confidence intervals for
+the difference of two rate parameters [[cite:fleiss_statistical_2013]]
+cite:fagerland_recommended_2011.  The performance of an approach is generally
+described in term of their coverage probabilities indicating the probability of
+a confidence interval to cover the true value (see [[Assessing performance of
+confidence interval methods]]).  Coverage probabilities greater and less than the
+confidence level $\beta$ describe conservative and liberal behaviors,
+respectively. Due to the conservative coverage probabilities and high
+computational effort of exact confidence interval estimates, approximate methods
+are generally preferred [[cite:agresti_approximate_1998]]
+cite:fagerland_recommended_2011.
+
+The Agresti-Caffo (AC) confidence interval cite:agresti_simple_2000
+
+$$\tilde{p}^{T} - \tilde{p}^{C} \pm z \sqrt{ \frac{\tilde{p}^{T} (1 -
+\tilde{p}^{T})} {\tilde{N}^{T}} + \frac{\tilde{p}^{C}(1 - \tilde{p}^{C})}
+{\tilde{N}^{C}} }$$
+
+with 
+
+$$\tilde{p}^{X} = \frac{K^{X}+\zeta}{N^{X}+2\zeta},$$
+
+$$\tilde{N}^{X} = N^{X} + 2\zeta,$$
+
+$$\zeta = \frac{1}{4} z^2,$$
+
+and $z = z_{(1-\beta)/2}$ (the upper $(1-\beta)/2$ percentile of the standard
+normal distribution), can be considered an approximation of the score test-based
+confidence interval.  Several publications emphasize the usefulness and
+advantages of the AC method over related approaches
+cite:fagerland_recommended_2011 cite:piegorsch_sample_2004
+cite:schaarschmidt_approximate_2008.
+
+
+*** Decision making with confidence intervals
+
+While the estimate for the shift in the non-consenus frequency $\hat{d}$
+indicates the change in abundance and direction of a variant, the corresponding
+confidence interval gives us information about the precision and power of the
+estimate.  Generally, wide confidence intervals will be present at sites with
+little statistical power, as due to low sequencing depths.
+
+Figure 1 shows a hypothetical set of cases that can be distinguished by
+regarding the point estimate and its confidence interval:
+
+1. Presence of a somatic, heterozygous variant
+2. Presence of a somatic, subclonal variant
+3. Presence of a loss of heterozygosity
+4. Absence of a somatic variant
+5. Presence or absence of a variant cannot be distinguished due to the low
+   certainty of the estimate
+6. No power due to minimal sequencing depth
+
+#+NAME: ci_cases_plot
+#+BEGIN_SRC R :results output graphics :file cases-ci.svg :session *R-devel* :width 14 :height 7 :ravel echo=FALSE, message=FALSE, fig.width=14, fig.height=7, fig.cap='Illustrative cases of confidence intervals for somatic variant frequency estimates'
+  library(ggplot2)
+  
+  df = data.frame(
+      x = factor(rep(c(""), times = 6)),
+      case = factor(1:6),
+      cil = c(0.45, 0.2, -0.60, -0.05, -0.3, -1),
+      ciu = c(0.55, 0.4, -0.45, 0.05, 0.7, 1)
+      )
+  
+  p = ggplot(df) + geom_errorbar(aes(x = x, ymin = cil, ymax = ciu), size = 2,
+  color = "black") + facet_grid( ~ case) + ylim(-1, 1) + geom_hline(aes(yintercept
+  = 0)) + theme_bw() + theme(legend.position = "none") + xlab("") +
+  ylab("pT - pC")
+  
+  print(p)
+#+END_SRC
+
+#+COMMENT: label: fig:<<chunk_name>>
+     
+
+** Distinguishing event classes
+
+Focusing on the comparative shift of non-consensus frequencies can detect and
+distinguish different types of events: Gains and losses of variants are
+characterized by positive and negative values of $d$, respectively.  Since
+=Rariant= does not make explicit assumptions about the abundance of a potential
+variant in the control sample, we are further able to find clonal shifts, for
+example between different tumor samples, or losses of heterozygocity.  For a
+differentiated interpretation of the results, we classify a set of variants
+positions into:
+
+1. Somatic variants where the variant allele is not present in the control
+   sample, rejecting a binomial test with the alternative hypothesis $H_{1}:
+   p^{C} > 0$.
+
+2. Sites with a loss of heterozygosity with a shift away from a heterozygous
+   variant in the control sample, rejecting a binomial test with the alternative
+   hypothesis $H_{1}: p^{C} \neq \frac{1}{2}$.
+
+
+** Identifying variant sites in large datasets
+
+For detecting sites that exhibit a shift in variant frequency between two
+samples, we employ the following strategy at each genomic position individually:
+
+1. Extract the base counts table (also known as /tallies/) from the aligned
+   reads.
+
+2. Calculate the sequencing depth and mismatch counts for both samples, based on
+   the consensus sequence.
+
+3. Prefilter sites with a Fisher's Exact Test, comparing number of mismatching
+   and total bases between the samples.  The p-values are corrected for multiple
+   testing according to the Benjamini-Hochberg procedure.  Only positions
+   rejecting the null hypothesis at a significance level $\alpha$ are furtheron
+   considered as potential variants.
+
+4. Calculation of Agresti-Caffo confidence intervals with confidence level
+   $\beta$, and selection of sites that reject the null hypothesis.
+
+
+* Workflow
+
+In the following, we show an complete workflow for identifying SNVs from aligned
+short reads.  For illustration purposes, we will focus on data from a whole
+exome sequencing (WES) study, as part of the =h5vcData= package
+[[cite:pyl_h5vcdata:_2013]], covering a subset of the NRAS gene.
+
+#+BEGIN_SRC R :exports code :ravel results='hide', message=FALSE, warning=FALSE
+  library(Rariant)
+  
+  library(h5vcData)
+  library(GenomicRanges)
+  library(ggbio)
+  library(ggplot2)
+#+END_SRC
+
+
+** The data set
+
+We compare an AML tumor sample with the matching control sample of a single
+patient, starting with the alignments stored in =BAM= files.
+
+#+BEGIN_SRC R
+  control_bam = system.file("extdata", "NRAS.Control.bam", package = "h5vcData", mustWork = TRUE)
+  test_bam = system.file("extdata", "NRAS.AML.bam", package = "h5vcData", mustWork = TRUE)
+#+END_SRC
+
+
+Since we restrict our analysis to a small region of the genome at the moment, we
+further define our region of interest.
+
+#+BEGIN_SRC R
+  roi = GRanges("1", IRanges(start = 115258439, end = 115259089))  
+#+END_SRC
+
+
+** Identifying variant sites
+
+Variant sites can be identified with the =rariant= function.  As input,
+we specify the alignment files for the test and control sample.  If we are only
+interested in calling variants in specific regions, we can pass a =GRanges=
+object with the given intervals; otherwise, the entire genome will be
+analyzed.
+
+#+BEGIN_SRC R
+  vars = rariant(test_bam, control_bam, roi)
+#+END_SRC
+
+The calls are returned as a =GRanges= object, with each row corresponding to a
+detected variant site.  In this case, one variant is classified a probable
+somatic variant, with an estimated shift =d= in the variant frequency of $\approx
+0.51$ in the confidence range $[0.37,0.62]$.
+
+#+BEGIN_SRC R
+  vars
+#+END_SRC
+
+
+Additional arguments allow us to change the confidence levels and the filter
+settings used for excluding low quality base calls to reduce false positives.
+The defaults are suited for current Illumina sequencing data sets.
+
+
+** Understanding the results                                      :noexport:
+
+- testMismatch, controlMismatch :: Non-consensus base count in the test and
+     control sample
+- testDepth, controlDepth :: Sequencing depth in the test and control sample
+- d :: Estimated shift of the non-consensus frequencies
+- p1, p2 :: Non-consensus rate in the test and control sample
+- lower, upper :: Lower and upper bound of the confidence interval for $d$
+- pval, padj :: Raw and Benjamini-Hochberg adjusted p-value of the Fisher's
+                Exact test
+- called :: Was the site called as variant?
+- event_type :: Type of variant event: 'somatic', 'loh', 'undecided'.
+- padj_somatic, padj_hetero, pval_somatic, pval_hetero :: Raw and
+     Benjamini-Hochberg adjusted p-values of the binomial tests for the
+     respective event types
+
+
+** Explorative variant analysis
+
+By default, only identified variants are returned.  We can also obtain the
+results for all sites in our region of interest with =select = FALSE=.  This
+will be useful for an exploratory analysis, as investigating the absent of a
+variant or comparing calls between samples.
+
+#+BEGIN_SRC R
+  vars_all = rariant(test_bam, control_bam, roi, select = FALSE)
+  
+  head(vars_all, 3)
+#+END_SRC
+
+
+** Summarizing and visualizing results
+
+Sites harboring potential biological variants can be identified by confidence
+intervals that reject non-consensus frequencies shifts of 0.  The =ciOutside=
+function finds sites whose confidence intervals do not overlap a certain value.
+As we have seen before, the /NRAS/ locus contains one such site.
+
+#+BEGIN_SRC R
+  idx_out = ciOutside(vars_all, 0)
+  ind_out = which(idx_out)
+  
+  vars_all$outside = idx_out
+  
+  table(idx_out)
+#+END_SRC
+
+
+We inspect the variant site by visualizing the confidence intervals.  This
+allows us to clearly identify the variant and quantify the range of the expected
+variant frequency, as well as state the absence of other variants in the
+surrounding with high certainty.  The second plot indicates the shift in
+relation to the estimates $p^{T}_{i}$ and $p^{C}_{i}$, also indicating the gain
+of the variant allele in the tumor.
+
+#+BEGIN_SRC R :exports both :results output graphics :file nras-site1.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='NRAS: Variant frequency confidence intervals and shifts'
+  win = 20
+  ind_var = (ind_out[1]-win):(ind_out[1]+win)
+  
+  p_ci = plotConfidenceIntervals(vars_all[ind_var])
+  
+  p_shift = plotAbundanceShift(vars_all[ind_var])
+  
+  t = tracks(p_ci, p_shift)
+  
+  print(t)
+#+END_SRC
+
+Looking at a larger region, we see that the certainty of our estimates
+correlates with sequencing depth of the samples.  Further evidence for this is
+shown in [[Statistical power and sequencing depth]].
+
+#+BEGIN_SRC R :exports both :results output graphics :file nras-site2.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7, fig.cap='NRAS: Non-variant site with sequencing depth'
+  ind_low = (100-40):(100+40)
+    
+  p_low = plotConfidenceIntervals(vars_all[ind_low])
+  p_depth = autoplot(vars_all[ind_low], aes(y = testDepth), geom = "step", col = "darkred") + geom_step(aes(y = controlDepth), col = "steelblue3") + theme_bw()
+    
+  t2 = tracks(p_low, p_depth)
+  
+  print(t2)
+#+END_SRC
+
+
+** Interactive variant analysis
+
+With the =rariantInspect= interface, the results of the =rariant= can be
+explored interactively in the web browser.  Since we cannot demonstrate this in
+a static document, we show screenshots of the application.  Figures and results
+tables can be displayey conveniently and subset according to multiple criteria.
+
+#+BEGIN_SRC R :ravel eval=FALSE
+  rariantInspect(vars_all)
+#+END_SRC
+
+#+CAPTION: Interactive analysis, showing confidence interval plots
+[[file:rariant-inspect-ci.png]]
+
+#+CAPTION: Interactive analysis, showing non-consensus rate shift plots
+[[file:rariant-inspect-shift.png]]
+
+
+
+* Example Cases
+
+To illustrate typical cases that can distinguished with the proposed methodology
+on real data, we investigate a tumor/normal comparison of a single patient as
+part of an AML WGS study.  The data is part of the =h5vcData= package
+[[cite:pyl_h5vcdata:_2013]].  We will focus on the [[http://www.ensembl.org/Homo_sapiens/Gene/Summary?db%3Dcore%3Bg%3DENSG00000128383][/APOBEC3A/]] locus on chromosome
+22, and will use two types of plots of a set of exemplary regions:
+
+1. Mismatch plots which show the sequencing depth (in gray) and base-specific
+   mismatches (in colors) separated across strands.  The upper and lower panel
+   represent the normal and tumor sample, respectively.
+
+2. Confidence interval plot with the estimated somatic variant frequency (as
+   dot) and corresponding 99% confidence interval (as line range) for both as
+   well as the plus and minus strand.
+
+
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  library(Rariant)
+  
+  library(h5vc)
+  library(h5vcData)
+  library(GenomicRanges)
+  library(ggbio)
+  library(ggplot2)
+  library(biovizBase)
+#+END_SRC
+
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  roi = GRanges("chr22", IRanges(39357400, 39357400))
+  data(genesymbol, package = "biovizBase")
+  apo = reduce(genesymbol[names(genesymbol) %in% "APOBEC3A"])
+#+END_SRC
+
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  tallyFile = system.file("extdata", "example.tally.hfs5", package = "h5vcData", mustWork = TRUE)
+  sampleData = getSampleData(tallyFile, "/ExampleStudy/22")
+  
+  stopifnot(file.exists(tallyFile))
+  
+  data = h5readBlock(
+      filename = tallyFile,
+      group = "/ExampleStudy/22",
+      names = c("Counts", "Coverages", "Deletions"),
+      range = c(start(apo), end(apo))
+  )
+  
+  counts = data$Counts
+  counts = counts[5:8, , , ] ## focus on HQ counts
+  mm_test = aperm(counts[ ,2, , ], c(3,1,2))
+  mm_control = aperm(counts[ ,1, , ], c(3,1,2))
+    
+  cov = data$Coverages
+  cov_test = aperm(cov[2, , ], c(2,1))
+  cov_control = aperm(cov[1, , ], c(2,1))
+  
+  #+END_SRC
+
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  conf_level = 0.99
+  
+  ## container GRanges
+  gr = GRanges("22", IRanges(start(apo):end(apo), width = 1))
+  
+  ## both strands
+  k1b = rowSums(colSums(aperm(mm_test, c(3,1,2))))
+  k2b = rowSums(colSums(aperm(mm_control, c(3,1,2))))
+  n1b = colSums(aperm(cov_test, c(2,1)))
+  n2b = colSums(aperm(cov_control, c(2,1)))
+  
+  cis = acCi(k1b, n1b, k2b, n2b, conf_level)
+  
+  grb = gr
+  mcols(grb) = cis
+  
+  ## plus strand
+  k1p = rowSums(mm_test[ , ,1])
+  k2p = rowSums(mm_control[ , ,1])
+  n1p = cov_test[ ,1]
+  n2p = cov_control[ ,1]
+  
+  cip = acCi(k1p, n1p, k2p, n2p, conf_level)
+  
+  grp = gr
+  mcols(grp) = cip
+  
+  ## minus strand
+  k1m = rowSums(mm_test[ , ,2])
+  k2m = rowSums(mm_control[ , ,2])
+  n1m = cov_test[ ,2]
+  n2m = cov_control[ ,2]
+  
+  cim = acCi(k1m, n1m, k2m, n2m, conf_level)
+  
+  grm = gr
+  mcols(grm) = cim
+  
+#+END_SRC
+
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  idx_out = ciOutside(cis)
+  ind_out = which(idx_out)
+  
+  table(idx_out)
+#+END_SRC
+
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  idx_over = ciOverlap(cip, cim)
+  
+  table(idx_over)
+#+END_SRC
+
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  idx_unequal = (n1p > 30 & n1m < 2) | (n1p < 3 & n1m > 30)
+  ind_unequal = which(idx_unequal)
+  
+  sum(idx_unequal)
+#+END_SRC
+
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  win = 35
+  
+  plotCis <- function(idx_show) {
+  
+      pb1 = plotConfidenceIntervals(grb[idx_show])
+      pp1 = plotConfidenceIntervals(grp[idx_show])
+      pm1 = plotConfidenceIntervals(grm[idx_show])
+  
+      t1 = tracks(both = pb1, plus = pp1, minus = pm1)
+  
+      return(t1)
+  }
+  
+  plotMm <- function(pos) {
+      
+      ## mmplot
+      data0 = h5readBlock(filename = tallyFile, group = "/ExampleStudy/22", names = c("Coverages", "Counts", "Deletions"), range = c(pos-win, pos+win))
+      data0$Counts[c(1:4, 9:12), , , ] = 0
+  
+      p1 = mismatchPlot(data = data0, sampledata = sampleData, samples = sampleData$Sample[c(2,5)], windowsize = win, position = pos) + theme_bw() + theme(legend.background = element_rect(color = "black", size = 0.1), strip.background = element_rect(fill = NA), legend.position = "none")
+  
+      return(p1)
+  }
+  
+#+END_SRC
+
+
+** Case 1: Somatic variant
+
+The first example shows a potential heterozygous somatic variant, for which
+there is no evidence in the control sample.  The mismatch frequencies differ
+slightly between the two strands, indicating a lower abundance for the minus
+strand.
+
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  i = 1
+  idx_show = (ind_out[i]-win):(ind_out[i]+win)
+  pos = start(gr)[ind_out[i]]
+#+END_SRC
+
+
+#+BEGIN_SRC R :exports results :results output graphics :file aml-mm-1.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE, fig.width=14, fig.height=7, fig.cap='Mismatch plot for case 1: Somatic variant', echo='hide'
+  p1 = plotMm(pos)
+  print(p1)
+#+END_SRC
+
+
+#+BEGIN_SRC R :exports both :results output graphics :file aml-ci-1.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE, fig.width=14, fig.height=7, fig.cap='Confidence interval plot for case 1: Somatic variant'
+  t1 = plotCis(idx_show)
+  print(t1)
+#+END_SRC
+
+
+** Case 2: Absence of variants
+
+In contrast to the previous case does this region not show a somatic variant.
+The confidence intervals are all consistent with a somatic variant frequency
+of 0, while the small width of them indicate the high certainty of the estimate.
+
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  idx = 1000
+  idx_show = (idx-win):(idx+win)
+  pos = start(gr)[idx]
+#+END_SRC
+
+
+#+BEGIN_SRC R :exports both :results output graphics :file aml-mm-2.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Mismatch plot for case 2: Absence of a variant'
+  p2 = plotMm(pos)
+  print(p2)
+#+END_SRC
+
+
+#+BEGIN_SRC R :exports both :results output graphics :file aml-ci-2.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Confidence interval plot for case 2: Absence of a variant'
+  t2 = plotCis(idx_show)
+  print(t2)
+#+END_SRC
+
+
+** Case 3: Strand-specific mismatches
+
+In the third example region, mismatches are predominantly present on the minus
+strand.  This behaviour is also reflected in the confidence intervals, comparing
+the plus and the minus strand to each other.
+
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  i = 2
+  idx_show = (ind_out[i]-win):(ind_out[i]+win)
+  pos = start(gr)[ind_out[i]]
+#+END_SRC
+
+
+#+BEGIN_SRC R :exports both :results output graphics :file aml-mm-3.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Mismatch plot for case 3: Strand-specific mismatches'
+  p3 = plotMm(pos)  
+  print(p3)
+#+END_SRC
+
+
+#+BEGIN_SRC R :exports both :results output graphics :file aml-ci-3.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Confidence interval plot for case 3: Strand-specific mismatches'
+  t3 = plotCis(idx_show)
+  print(t3)
+#+END_SRC
+
+
+** Case 4: Strand-specific differences in sequencing depth
+
+The fourth region denotes a case with deviating sequencing depth between the
+strands.  For the plus strand, the low statistical power is reflected in the
+wide confidence intervals.
+
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  i = ind_unequal[10]
+  idx_show = (i-win):(i+win)
+  pos = start(gr)[i]
+#+END_SRC
+
+
+#+BEGIN_SRC R :exports both :results output graphics :file aml-mm-4.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Mismatch plot for case 4: Strand-specific differences in sequencing depth'
+  p4 = plotMm(pos)
+  print(p4)
+#+END_SRC
+
+
+#+BEGIN_SRC R :exports both :results output graphics :file aml-ci-4.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Confidence inteval plot for case 4: Strand-specific differences in sequencing depth'
+  t4 = plotCis(idx_show)
+  print(t4)
+#+END_SRC
+
+
+* Supplementary Information
+
+** Strand-specific analysis
+
+By comparing the confidence intervals between strands, we can further detect and
+characterize effects such as variations in sequencing depth and strand biases.
+We illustrate this with a set of hypothetical cases for confidence intervals for
+two strands.  The upper row (cases 4-7) corresponds to sites with overlapping
+CIs, whereas the lower row (cases 1-3) shows cases of disagreements between the
+CIs indicative of strand biases.  When analyzing the probability for the overlap
+of confidence intervals, an adjustment of the confidence level has to be taken
+into account [[cite:knol_misuse_2011]].
+
+#+BEGIN_SRC R :results output graphics :file cases-strands.svg :session *R-devel* :width 14 :height 7 :ravel echo=FALSE, message=FALSE, fig.width=14, fig.height=7, fig.cap='Illustrative cases of confidence intervals for somatic variant frequency estimates for two strands'
+  library(ggplot2)
+    
+  df = data.frame(
+      x = factor(rep(c("A", "B"), times = 7)),
+      case = factor(rep(c(5, 6, 7, 4, 1, 2, 3), each = 2)),
+      cil = c(0.5, -0.8, 0.5, 0.1, 0.5, -0.2, 0.5, 0.4, 0.5, -0.7, -0.1, -0.2, -0.9, -0.8),
+      ciu = c(0.8, -0.5, 0.8, 0.3, 0.8, 0.2, 0.8, 0.7, 0.8, 0.7, 0.2, 0.1, 0.8, 0.9),
+      group = factor(c(rep("n", 2*3), rep("o", 2*4)))
+      )
+  #df$case = factor(df$case, levels = c(4, 6:7, 5, 1:3))
+  
+  p = ggplot(df) + geom_errorbar(aes(x = x, ymin = cil, ymax = ciu), size = 2, color = "black") + facet_wrap(~ case, nrow = 2) + ylim(-1, 1) + geom_hline(aes(yintercept = 0)) + geom_hline(aes(yintercept = 0.6), color = "darkred", linetype = "dashed") + theme_bw() + theme(legend.position = "none") + xlab("Strand") + ylab("Shift in non-consensus rate")
+  
+  print(p)
+#+END_SRC
+
+Motivated by the analysis of different Illumina genome and exome sequencing, we
+consider strand-biases, in which the non-consensus base call rates differ
+significantly between strands at sites with sufficient sequencinq depth, a
+neglectable problem with current data sets and analysis pipelines (see also [[Best
+practices for short-read processing]]).  In the presence of strand biases, pooling
+the counts of both plus and minus strand may be not desirable.  A possible
+solution may be to perform a strand-specific analysis, and later combine the
+resulting statistics. Gerstung and colleagues discuss different approaches for
+combining p-values [[cite:gerstung_reliable_2012]], in particular taking the
+minimum, maximum, average, or Fisher combination.  These can be also applied for
+confidence intervals, with Fisher's method being equivalent to taking the sum of
+both strands.
+
+
+** Statistical power and sequencing depth
+
+For the region harboring the variant site, we can illustrate this behavior by
+plotting the confidence interval width against the average sequencing depth.
+
+#+BEGIN_SRC R :exports both :results output graphics :file ci-width-depth.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE, fig.height=7, out.width='0.5\\columnwidth', fig.cap='Confidence interval width - sequencing depth relationship.  The identified variant is marked in blue.'
+  df = as.data.frame(vars_all)
+  df$ci_width = ciWidth(df)
+  
+  p = ggplot(df) + geom_point(aes_string(x = "(controlDepth + testDepth) / 2", y = "ci_width", col = "outside")) + xlab("Average sequencing depth") + ylab("Confidence interval width") + theme_bw()
+  
+  print(p)
+#+END_SRC
+
+
+** Multiple testing adjustment of confidence levels
+
+When computing confidence intervals for a selection of sites, the coverage
+probabilities can deviate from the desired confidence level $\beta$.  Benjamini
+and Yekutieli [[cite:benjamini_false_2005]] discussed this issue for confidence
+intervals and proposed a false-discovery related approach to obtain an adjusted
+confidence level
+
+$$\tilde{\beta} = 1 - (1 - \hat{\eta}_{0}) (1 - \beta)$$
+
+based on the estimated fraction $\hat{\eta}_{0}$ of sites consistent with the
+null hypothesis.  For most sequencing studies targeting large parts of the exome
+or genome, we expect $\hat{\eta}_{0}$ to be close to 1.
+
+
+** Best practices for short-read processing
+
+Here we outline our recommendations for how to obtain high-quality variant
+calls.
+
+1. Alignment to the reference genome (considering only unique alignment, with a
+   reference genome including unplaced contigs and patches, clipping of
+   overlapping read pairs for small/negative insert sizes)
+2. Removal of duplicated reads
+3. Realignment around InDel regions, for all samples of a patient together
+4. Initial variant calling
+5. Realignment around potential variant regions (to remove aligner specific
+   artifacts)
+6. Final variant calling
+
+
+** Assessing performance of confidence interval methods
+
+As outlined before, an important property for assessing confidence intervals is
+given by their coverage probabilities.  Ideally, we would expect a method to
+have coverage probabilities close to the nominal confidence level \beta over a
+wide range in the parameter space.  Previous publications analyzing the
+performance focus on parameter settings that deviate from those of sequencing
+data sets cite:fagerland_recommended_2011.  Therefore, we perform a simulation
+that demonstrates the behavior of the Agrest-Caffo methods for a whole-genome
+sequencing study.  For a fixed sequencing depth of 30 in both test and control
+sample, the coverage probability of 95% AC confidence intervals is computed for
+all possible combinations of mismatch counts $K^{T}$ and $K^{C}$.
+
+
+#+BEGIN_SRC R :session *R-devel*
+  ## WGS
+  n1 = 30
+  n2 = 30
+  k1 = 0:(n1-1)
+  k2 = 0:(n2-1)
+  cl = 0.95
+  n_sample = 1e4
+  
+  pars = expand.grid(k1 = k1, k2 = k2, n1 = n1, n2 = n2, conf_level = cl)
+  
+  cp_ac = coverageProbability(pars, fun = acCi, n_sample = n_sample)
+#+END_SRC
+
+
+#+BEGIN_SRC R :exports both :results output graphics :file cp-ac-wgs.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7, out.width='0.6\\columnwidth', fig.cap='Coverage probabilities for whole-genome setting'
+  p_ac = ggplot(cp_ac) + geom_tile(aes(x = k1, y = k2, fill = cp)) + scale_fill_gradient2(midpoint = 0.95, limits = c(0.9, 1)) + theme_bw() + xlab("kT") + ylab("kC")
+  
+  print(p_ac)
+#+END_SRC
+
+For mismatch rates close to 0 or 1 in both samples, the Agresti-Caffo method
+shows a conservative perfomance.
+
+
+** Sample splitting
+
+The implementation of the Agresti-Caffo CI also includes a method for improving
+the coverage probability, by randomly splitting the sample
+[[cite:decrouez_split_2013]].  This is especially useful at sites with low
+sequencing depth.
+
+#+BEGIN_SRC R :session *R-devel*
+  cp_ac_split = coverageProbability(pars, fun = acCi, n_sample = n_sample, split = TRUE)
+  #+END_SRC
+
+
+#+BEGIN_SRC R :exports both :results output graphics :file cp-ac-wgs-split.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7, out.width='0.6\\columnwidth', fig.cap='Coverage probabilities with sample splitting'
+  p_ac_split = ggplot(cp_ac_split) + geom_tile(aes(x = k1, y = k2, fill = cp)) + scale_fill_gradient2(midpoint = 0.95, limits = c(0.9, 1)) + theme_bw() + xlab("kT") + ylab("kC")
+  
+  print(p_ac_split)
+#+END_SRC
+
+
+#+LaTeX: \appendix
+
+
+** Split comparisons                                              :noexport:
+
+#+BEGIN_SRC R :session *R-devel*
+  ## bad cases with 'NA's
+  idx_na = is.na(cp_ac_split$cp) | is.na(cp_ac_split$aw)
+  cp_ac_split[idx_na, ]
+  
+  dev.new()
+  smoothScatter(abs(cp_ac$cp - cl), abs(cp_ac_split$cp - 0.95), pch = 20)
+  abline(0, 1)
+  
+  table(abs(cp_ac$cp - cl) > abs(cp_ac_split$cp - cl))
+  
+  dev.new()
+  plot(cp_ac$aw, (cp_ac_split$aw - cp_ac$aw), pch = 20, log = "x")
+  abline(h = 0)
+  
+  table(cp_ac$aw > cp_ac_split$aw)
+  
+  
+  ## difference plots
+  d_cp = cp_ac
+  d_cp$d = abs(cp_ac$cp - cl) - abs(cp_ac_split$cp - cl)
+  d_cp$w = cp_ac$aw - cp_ac_split$aw
+  
+  p_d_cp = ggplot(d_cp) + geom_tile(aes(x = k1, y = k2, fill = d)) + scale_fill_gradient2(midpoint = 0, limits = c(-0.02, 0.02)) + theme_bw() + xlab("kT") + ylab("kC")
+  
+  p_d_w = ggplot(d_cp) + geom_tile(aes(x = k1, y = k2, fill = w)) + scale_fill_gradient2(midpoint = 0, limits = c(-2e-3, 2e-3)) + theme_bw() + xlab("kT") + ylab("kC")
+    
+  dev.new(); print(p_d_cp)
+  dev.new(); print(p_d_w)
+  #+END_SRC
+
+
+** Benchmarking of performance and resources                      :noexport:
+
+For an analysis of two matched human tumor samples, we performed a benchmark to
+assess the computational time and memory usage on a standard laptop (Thinkpad
+X220 built in 2011).  Both samples contain about 95M reads mapped to the
+1000genomes reference sequence reads that are considered in the analysis.  For
+the analysis of chromosome 22, the analysis with default parameters required
+~873s and 600MB of RAM.  For an analysis of all linear toplevel chromosomes
+(autosomes and allosomes), this would require ~15h of time.  Please consider
+that the current version of =Rariant= is under active development and
+computational efficiency will increase with newer versions.
+
+
+** Workflow: Long version                                          :noexport:
+
+In the following, we show an complete workflow on how to generate variant calls
+starting with alignment files.  For illustration purposes, we will focus on data
+from a WES study, as part of the h5vcData package [[cite:pyl_h5vcdata:_2013]],
+covering a subset of the NRAS gene.
+
+The analysis steps can be summarized as:
+
+1. Extract the position-specific base counts tables (also known as /tallies/)
+   from the aligned reads.
+
+2. Calculate the sequencing depth and mismatch counts.
+
+3. Estimate position-specific test statistics and confidence intervals.
+
+4. Summarize and visualize the results.
+
+
+#+BEGIN_SRC R :exports code :ravel results='hide', message=FALSE, warning=FALSE
+  library(Rariant)
+  
+  library(h5vc)
+  library(h5vcData)
+  library(GenomicRanges)
+  library(ggbio)
+  library(ggplot2)
+  library(biovizBase)
+#+END_SRC
+
+
+*** The data set
+
+We will compare a AML tumor sample with the matching control sample of a single
+patient, starting with the alignments stored in =BAM= files.
+
+#+BEGIN_SRC R
+  control_bam = system.file("extdata", "NRAS.Control.bam", package = "h5vcData", mustWork = TRUE)
+  test_bam = system.file("extdata", "NRAS.AML.bam", package = "h5vcData", mustWork = TRUE)
+#+END_SRC
+
+
+Since we will restrict our analysis to a small region of the genome at the
+moment, we further define our region of interest.
+
+#+BEGIN_SRC R
+  roi = GRanges("1", IRanges(start = 115258439, end = 115259089))
+  gr = GRanges("1", IRanges(start(roi):end(roi), width = 1))
+#+END_SRC
+
+
+*** Extracting and preparing tallies
+
+Next, we extract position-specific base count tables from the =BAM= files for
+each position in our region of interest.  While several Bioconductor packages
+offer the functionality for this task (e.g. =Rsamtools::applyPileups= or
+=deepSNV::bam2R=), the =tallyBAM= function from the =h5vc= package will be used
+here.  We will rearrange the dimensions of the tallies, to obtain the counts in
+the format {position x base x strand} for the next step.
+
+#+BEGIN_SRC R
+  ## test sample
+  test_tally = tallyBAM(test_bam, chr = as.character(seqnames(roi)), start = start(roi), stop = end(roi), ncycles = 0)
+  test_tally = aperm(test_tally[5:8, , ], c(3, 1, 2))
+  
+  dim(test_tally)
+  
+  ## control sample
+  control_tally = tallyBAM(control_bam, chr = as.character(seqnames(roi)), start = start(roi), stop = end(roi), ncycles = 0)
+  control_tally = aperm(control_tally[5:8, , ], c(3, 1, 2))
+  
+  dim(control_tally)
+#+END_SRC
+
+
+*** Calculating mismatch counts and sequencing depths
+
+The =comparativeMismatch= function calculates the number of mismatches and
+sequencing depth for two matched samples, which will be the basis for the
+following statistical analysis.  For this, the consensus sequence has to be
+determined first.  Here, we use the most abundand base call of the control
+sample.  Other approaches and the individual steps are outlined in the appendix
+[[Comparative analysis of matching samples]].
+
+#+BEGIN_SRC R
+  dx = comparativeMismatch(test_tally, control_tally, strand = "both")
+  
+  head(dx)
+#+END_SRC
+
+
+
+*** Estimating test statistics and confidence intervals
+
+Based on the counts obtained before, we compute the test statistics and
+95% confidence intervals for $d$.
+
+#+BEGIN_SRC R
+  pval = with(dx, feTest(k1, n1, k2, n2))
+  padj = p.adjust(pval, method = "BH")
+#+END_SRC
+
+
+#+BEGIN_SRC R
+  ci = with(dx, acCi(k1, n1, k2, n2))
+#+END_SRC
+
+
+For a explorative analysis, we store the results and the original data in the
+GRanges object.
+
+#+BEGIN_SRC R
+  stats = cbind(ci, pval = pval, padj = padj, dx)
+  mcols(gr) = stats
+  
+  head(stats, 3)
+#+END_SRC
+
+
+
+*** Summarizing and visualizing results
+
+Sites harboring potential somatic variants can be identified by those whose
+confidence intervals that reject somatic variant frequencies of 0.  In this
+case, this holds true for one site.
+
+#+BEGIN_SRC R
+  idx_out = ciOutside(ci)
+  ind_out = which(idx_out)
+  
+  gr$outside = idx_out
+  
+  table(idx_out)
+#+END_SRC
+
+
+We inspect the variant site by visualizing the confidencen intervals, as well
+the sequencing depth in both samples.  This allows us to cleary identify the
+variant and quantify the range of the expected variant frequency, as well as
+state the absence of other variants in the surrounding with high certainty.
+
+#+BEGIN_SRC R :exports both :results output graphics :file nras-site1.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='NRAS: Variant site'
+  win = 20
+  ind_var = (ind_out[1]-win):(ind_out[1]+win)
+  
+  p_ci = plotConfidenceIntervals(gr[ind_var])
+  
+  print(p_ci)
+  
+  #p_depth = autoplot(gr[ind_var], aes(y = n1), geom = "step", col = "darkred") + geom_step(aes(y = n2), col = "steelblue3") + theme_bw()
+  #t1 = tracks(p_ci, p_depth)
+  #print(t1)
+#+END_SRC
+
+
+Considering another region, we can see that certainty of our estimates
+correlates with sequencing depth of the samples.
+
+#+BEGIN_SRC R :exports both :results output graphics :file nras-site2.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7, fig.cap='NRAS: Non-variant site with sequencing depth'
+  ind_low = (100-40):(100+40)
+    
+  p_low = plotConfidenceIntervals(gr[ind_low])
+  p_depth = autoplot(gr[ind_low], aes(y = n1), geom = "step", col = "darkred") + geom_step(aes(y = n2), col = "steelblue3") + theme_bw()
+    
+  t2 = tracks(p_low, p_depth)
+  
+  print(t2)
+#+END_SRC
+
+
+We can further emphasize this relationship by plotting the confidence interval
+width against the average sequencing depth.
+
+#+BEGIN_SRC R :exports both :results output graphics :file ci-width-depth.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7, out.width='0.5\\columnwidth', fig.cap='Confidence interval width - sequencing depth relationship.  The identified variant is marked in red.'
+  plot((stats$n1+stats$n2)/2, ciWidth(stats), pch = 20, col = idx_out + 1, log = "x")
+#+END_SRC
+
+
+The final call set can also be converted to a =VRanges= object, for downstream
+analysis with other =Bioconductor= packages.
+
+#+BEGIN_SRC R
+  vr = somaticVariants(dx, gr)
+  
+  vr[ind_out]
+#+END_SRC
+
+
+** Comparative analysis of matching samples                       :noexport:
+
+This section will explain the steps performed by the =comparativeMismatch=
+function in detail.  For this, we will recreate the results with the underlying
+low-level functions.  
+
+In the first step, we combine the counts of both strand by adding them up.  We
+could also perform the analysis for each strand individually, and combine the
+results at a later stage.
+
+#+BEGIN_SRC R
+  control_counts = selectStrand(control_tally, "both")
+  colnames(control_counts) = c("A", "C", "G", "T")
+  
+  test_counts = selectStrand(test_tally, "both")
+  colnames(test_counts) = c("A", "C", "G", "T")
+#+END_SRC
+
+
+In order to be able to find mismatching base calls, we need to obtain the
+consensus sequence for our samples.  We could take the respective reference
+genome sequence.  In a comparative setting, defining the consensus in terms of
+the most abundant base call of the control sample is a suitable alternative that
+we will employ here.
+
+#+BEGIN_SRC R
+  control_base = callConsensus(control_counts)
+  
+  table(control_base)
+#+END_SRC
+
+
+Then, we can extract the sequencing depth and the mismatch counts at each
+position for both of the samples.
+
+#+BEGIN_SRC R
+  control_depth = seqDepth(control_counts)
+  controlMismatch = mismatchCount(control_counts, control_base, control_depth)
+  
+  test_depth = seqDepth(test_counts)
+  testMismatch = mismatchCount(test_counts, control_base, test_depth) ## based on the 'control'
+#+END_SRC
+
+
+#+BEGIN_SRC R
+  dy = data.frame(k1 = test_mm, n1 = test_depth, k2 = control_mm, n2 = control_depth)
+  
+  head(dy)
+#+END_SRC
+
+
+** Alternatives for calling variants                              :noexport:
+
+
+Writing the output to a file can become useful for running unattended jobs on
+for example a computing cluster, and importing the results with =readRariant=
+for further analysis (see also [[From the command line]]).  This will contain the
+same data as the return value of =rariant=, and we only use both here to
+illustrate different flavors.
+
+#+BEGIN_SRC R
+  y = readRariant(out_file)
+#+END_SRC
+
+
+#+BEGIN_SRC R
+  #stopifnot(identical(y, vars))
+  
+  m1 = mcols(y)
+  m2 = mcols(vars)
+  
+  library(SomaticSignatures)
+  g1 = grangesPlain(y)
+  g2 = grangesPlain(vars)
+  
+  #identical(g1, g2)
+  
+  #identical(m1, m2)
+#+END_SRC
+
+
+*** From the command line
+
+The variant calling can also be accessed from the command line.  This is
+especially useful for interfacing with other programs or distributing the
+calling on a computing cluster.  
+
+#+BEGIN_SRC sh
+  rariant --test <test_bam> --control <control_bam> --region chr22:1000-2000 --output <output_file> <other options>
+#+END_SRC
+
+
+#+BEGIN_SRC R
+  out_file2 = tempfile()
+  
+  args = c(
+      "--test", test_bam,
+      "--control", control_bam,
+      "--region", gr2pos(roi),
+      "--output", out_file2)
+  
+  system2(rariantStandalone(), args)
+  
+  y2 = readRariant(out_file2)
+  
+  #stopifnot(identical(y, y2))
+#+END_SRC
+
+** Outdated                                                       :noexport:
+
+
+#+BEGIN_SRC R
+  #roi = GRanges("1", IRanges(start = 115256100, end = 115256803))
+  roi = GRanges("1", IRanges(start = 115248466, end = 115259535))
+  roi2 = GRanges("1", IRanges(start(roi)+9973, start(roi)+10624-1))
+  roi = roi2
+#+END_SRC
+
+
+#+BEGIN_SRC R
+  
+  plot(stats$n1 + stats$n2, ciWidth(stats))
+  plot(stats$n2, ciWidth(stats))
+  
+  plot(stats$k1 + stats$k2, ciWidth(stats))
+  
+  idx = which(stats$n2 > 100 & ciWidth(stats) > 0.2)
+  
+  
+  p = autoplot(gr, aes(x = d, y = d), geom = "point")
+  
+  p_rel = ggplot(as.data.frame(mcols(gr))) + geom_point()
+  
+  hist(ci$d, 50)
+  
+  dev.new()
+  plot(ci$d, dx$n1, pch = 20)
+  
+  ord = order(-abs(ci$d))
+  
+  head(dx[ord, ])
+  head(ci[ord, ])
+  
+  head(gr[ord])
+  
+  p_h = ggplot(ci) + geom_histogram(aes(x = d))
+#+END_SRC
+
+
+
+
+* Session Info
+
+#+BEGIN_SRC R :ravel echo=FALSE, results='asis'
+  toLatex(sessionInfo())
+#+END_SRC
+
+#+BIBLIOGRAPHY: references unsrt limit:t option:-d option:-nobibsource option:-dl option:-noabstract option:-nokeywords
+

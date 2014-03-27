@@ -1,0 +1,68 @@
+#!/usr/bin/env Rscript-devel
+suppressWarnings(suppressMessages(library(Rariant)))
+suppressWarnings(suppressMessages(library(optparse)))
+suppressWarnings(suppressMessages(library(GenomicRanges)))
+suppressWarnings(suppressMessages(library(Rsamtools)))
+
+# example from vignette
+option_list = list(
+    make_option(c("-t", "--test"),
+                type = "character",
+                help = "Test BAM file"),
+
+    make_option(c("-c", "--control"),
+                type = "character",
+                help = "Control BAM file"),
+
+    make_option(c("-r", "--region"),
+                type = "character",
+                help = "Region to analyze"),
+
+    make_option(c("-q", "--mapq"),
+                type = "integer",
+                default = 5,
+                help = "Minimum mapping quality"),
+    
+    make_option(c("-n", "--ncycles"),
+                type = "integer",
+                default = 10,
+                help = "Number of cycles to clip"),
+
+    make_option(c("-k", "--blocksize"),
+                type = "integer",
+                default = 1e4,
+                help = "Block size"),
+
+    make_option(c("-b", "--beta"),
+                type = "numeric",
+                default = 0.95),
+
+    make_option(c("-a", "--alpha"),
+                type = "numeric",
+                default = 0.05),
+
+    make_option(c("-s", "--strand"),
+                type = "character",
+                default = "both"),
+
+    make_option(c("-o", "--output"),
+                type = "character")
+    )
+
+parser = OptionParser(usage = "%prog [options] file", option_list = option_list)
+args = parse_args(parser)
+
+required_args = c("test", "control", "output")
+if(!all(required_args %in% names(args))) {
+    msg = sprintf("The input arguments are required: %s", paste(required_args, collapse = ", "))
+    stop(msg)
+}
+
+if("region" %in% names(args)) {
+    roi = pos2gr(args$region)
+}  else {
+    si = as(seqinfo(BamFile(args$test)), "GRanges")
+    roi = si
+}
+
+dummy = with(args, rariant(test = test, control = control, region = roi, beta = beta, alpha = alpha, strand = strand, nCycles = ncycles, minMapQual = mapq, block = blocksize, resultFile = output, value = FALSE))
