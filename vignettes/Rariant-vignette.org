@@ -5,7 +5,8 @@
 #+LATEX_HEADER: \usepackage[nottoc,numbib]{tocbibind}
 #+LATEX_HEADER: \usepackage{helvet}
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://www.ebi.ac.uk/~jgehring/css/bioc.css" />
-#+INFOJS_OPT: view:showall toc:t ftoc:t
+#+OPTIONS: html-postamble:t html-preamble:nil
+#+INFOJS_OPT: view:showall toc:t ftoc:t ltoc:nil
 
 #+MACRO: M @@latex:\$1{@@$2@@latex:}@@
 #+MACRO: R @@latex:\R{}@@
@@ -28,20 +29,26 @@
 #+END_HTML
 
 #+COMMENT: if ':exports none', the code block is not exported to the vignette templates 
-#+BEGIN_SRC R :ravel echo=FALSE, results='hide' :exports code
-set.seed(1)
-library(knitr)
-opts_chunk$set(comment = "  ", fig.path = "", fig.align = "center", out.width = "90%", indent = 10, cache = FALSE, cache.path = "../cache", out.width = "1\\columnwidth")
-## out.width = "1\\columnwidth"
-## uncomment options for HTML output, one of them breaks the image export
-## background = "#FFFFFF", dev = 'pdf'
+#+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
+  set.seed(1)
+  options(width = 120)
+  library(knitr)
+  opts_chunk$set(comment = "  ", fig.path = "", fig.align = "center", out.width = "90%", indent = 10, cache = FALSE, cache.path = "../cache")
+  ## out.width = "1\\columnwidth"
+  ## uncomment options for HTML output, one of them breaks the image export
+  ## background = "#FFFFFF", dev = 'pdf'
 #+END_SRC
 
 #+BEGIN_HTML
-<!--begin.rcode setup
+<!--begin.rcode setup, results='hide', echo=FALSE, message=FALSE, warning=FALSE
 library(knitr)
 # to base64 encode images
 opts_knit$set(upload.fun = image_uri)
+knit_hooks$set(fig.cap = function(before, options, envir) {
+if(!before) {
+paste('<p class="caption">',options$fig.cap,"</p>",sep="")
+}
+})
 end.rcode-->
 #+END_HTML
 
@@ -201,7 +208,7 @@ confidence interval gives us information about the precision and power of the
 estimate.  Generally, wide confidence intervals will be present at sites with
 little statistical power, as due to low sequencing depths.
 
-Figure 1 shows a hypothetical set of cases that can be distinguished by
+[[fig:ci_cases_plot][Figure 1]] shows a hypothetical set of cases that can be distinguished by
 regarding the point estimate and its confidence interval:
 
 1. Presence of a somatic, heterozygous variant
@@ -213,6 +220,7 @@ regarding the point estimate and its confidence interval:
 6. No power due to minimal sequencing depth
 
 #+NAME: ci_cases_plot
+#+LABEL: fig:ci_cases_plot
 #+BEGIN_SRC R :results output graphics :file cases-ci.svg :session *R-devel* :width 14 :height 7 :ravel echo=FALSE, message=FALSE, fig.width=14, fig.height=7, fig.cap='Illustrative cases of confidence intervals for somatic variant frequency estimates'
   library(ggplot2)
   
@@ -433,12 +441,14 @@ tables can be displayey conveniently and subset according to multiple criteria.
   rariantInspect(vars_all)
 #+END_SRC
 
+
+*** Pictures                                                     :noexport:
+
 #+CAPTION: Interactive analysis, showing confidence interval plots
 [[file:rariant-inspect-ci.png]]
 
 #+CAPTION: Interactive analysis, showing non-consensus rate shift plots
 [[file:rariant-inspect-shift.png]]
-
 
 
 * Example Cases
@@ -702,7 +712,8 @@ CIs indicative of strand biases.  When analyzing the probability for the overlap
 of confidence intervals, an adjustment of the confidence level has to be taken
 into account [[cite:knol_misuse_2011]].
 
-#+BEGIN_SRC R :results output graphics :file cases-strands.svg :session *R-devel* :width 14 :height 7 :ravel echo=FALSE, message=FALSE, fig.width=14, fig.height=7, fig.cap='Illustrative cases of confidence intervals for somatic variant frequency estimates for two strands'
+#+ATTR_RAVEL: fig.cap='Illustrative cases of confidence intervals for somatic variant frequency estimates for two strands'
+#+BEGIN_SRC R :results output graphics :file cases-strands.svg :session *R-devel* :width 14 :height 7 :ravel echo=FALSE, message=FALSE, fig.width=14, fig.height=7
   library(ggplot2)
     
   df = data.frame(
@@ -712,7 +723,6 @@ into account [[cite:knol_misuse_2011]].
       ciu = c(0.8, -0.5, 0.8, 0.3, 0.8, 0.2, 0.8, 0.7, 0.8, 0.7, 0.2, 0.1, 0.8, 0.9),
       group = factor(c(rep("n", 2*3), rep("o", 2*4)))
       )
-  #df$case = factor(df$case, levels = c(4, 6:7, 5, 1:3))
   
   p = ggplot(df) + geom_errorbar(aes(x = x, ymin = cil, ymax = ciu), size = 2, color = "black") + facet_wrap(~ case, nrow = 2) + ylim(-1, 1) + geom_hline(aes(yintercept = 0)) + geom_hline(aes(yintercept = 0.6), color = "darkred", linetype = "dashed") + theme_bw() + theme(legend.position = "none") + xlab("Strand") + ylab("Shift in non-consensus rate")
   
@@ -738,7 +748,7 @@ both strands.
 For the region harboring the variant site, we can illustrate this behavior by
 plotting the confidence interval width against the average sequencing depth.
 
-#+BEGIN_SRC R :exports both :results output graphics :file ci-width-depth.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE, fig.height=7, out.width='0.5\\columnwidth', fig.cap='Confidence interval width - sequencing depth relationship.  The identified variant is marked in blue.'
+#+BEGIN_SRC R :exports both :results output graphics :file ci-width-depth.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE, fig.height=7, out.width='50%', fig.cap='Confidence interval width - sequencing depth relationship.  The identified variant is marked in blue.'
   df = as.data.frame(vars_all)
   df$ci_width = ciWidth(df)
   
@@ -763,7 +773,7 @@ null hypothesis.  For most sequencing studies targeting large parts of the exome
 or genome, we expect $\hat{\eta}_{0}$ to be close to 1.
 
 
-** Best practices for short-read processing
+** Best practices for short-read processing                       :noexport:
 
 Here we outline our recommendations for how to obtain high-quality variant
 calls.
@@ -808,7 +818,7 @@ all possible combinations of mismatch counts $K^{T}$ and $K^{C}$.
 #+END_SRC
 
 
-#+BEGIN_SRC R :exports both :results output graphics :file cp-ac-wgs.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7, out.width='0.6\\columnwidth', fig.cap='Coverage probabilities for whole-genome setting'
+#+BEGIN_SRC R :exports both :results output graphics :file cp-ac-wgs.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7, out.width='60%', fig.cap='Coverage probabilities for whole-genome setting'
   p_ac = ggplot(cp_ac) + geom_tile(aes(x = k1, y = k2, fill = cp)) + scale_fill_gradient2(midpoint = 0.95, limits = c(0.9, 1)) + theme_bw() + xlab("kT") + ylab("kC")
   
   print(p_ac)
@@ -830,14 +840,11 @@ sequencing depth.
   #+END_SRC
 
 
-#+BEGIN_SRC R :exports both :results output graphics :file cp-ac-wgs-split.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7, out.width='0.6\\columnwidth', fig.cap='Coverage probabilities with sample splitting'
+#+BEGIN_SRC R :exports both :results output graphics :file cp-ac-wgs-split.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7, out.width='60%', fig.cap='Coverage probabilities with sample splitting'
   p_ac_split = ggplot(cp_ac_split) + geom_tile(aes(x = k1, y = k2, fill = cp)) + scale_fill_gradient2(midpoint = 0.95, limits = c(0.9, 1)) + theme_bw() + xlab("kT") + ylab("kC")
   
   print(p_ac_split)
 #+END_SRC
-
-
-#+LaTeX: \appendix
 
 
 ** Split comparisons                                              :noexport:
@@ -1060,7 +1067,7 @@ correlates with sequencing depth of the samples.
 We can further emphasize this relationship by plotting the confidence interval
 width against the average sequencing depth.
 
-#+BEGIN_SRC R :exports both :results output graphics :file ci-width-depth.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7, out.width='0.5\\columnwidth', fig.cap='Confidence interval width - sequencing depth relationship.  The identified variant is marked in red.'
+#+BEGIN_SRC R :exports both :results output graphics :file ci-width-depth.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7, out.width='50%', fig.cap='Confidence interval width - sequencing depth relationship.  The identified variant is marked in red.'
   plot((stats$n1+stats$n2)/2, ciWidth(stats), pch = 20, col = idx_out + 1, log = "x")
 #+END_SRC
 
@@ -1183,6 +1190,7 @@ calling on a computing cluster.
   #stopifnot(identical(y, y2))
 #+END_SRC
 
+
 ** Outdated                                                       :noexport:
 
 
@@ -1226,11 +1234,15 @@ calling on a computing cluster.
 
 
 
+* References
+
+#+BIBLIOGRAPHY: references unsrt limit:t option:-d option:-nobibsource option:-noabstract option:-nokeywords
+
+
 * Session Info
 
-#+BEGIN_SRC R :ravel echo=FALSE, results='asis'
-  toLatex(sessionInfo())
-#+END_SRC
 
-#+BIBLIOGRAPHY: references unsrt limit:t option:-d option:-nobibsource option:-dl option:-noabstract option:-nokeywords
+#+BEGIN_SRC R :ravel echo=FALSE, results='markup'
+  sessionInfo()
+#+END_SRC
 
