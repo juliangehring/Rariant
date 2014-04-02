@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>Comparative Identification and Assessment of Single Nucleotide Variants Through Shifts in Base Call Frequencies</title>
-<!-- 2014-03-28 Fri 18:56 -->
+<!-- 2014-04-02 Wed 11:02 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Julian Gehring, Simon Anders, Bernd Klaus (EMBL Heidelberg)" />
@@ -88,6 +88,7 @@
     { background-color: #ffff00; color: #000000; font-weight: bold; }
   /*]]>*/-->
 </style>
+<link rel="stylesheet" type="text/css" href="bioc.css" />
 <link rel="stylesheet" type="text/css" href="http://www.ebi.ac.uk/~jgehring/css/bioc.css" />
 
 <script type="text/javascript" src="http://orgmode.org/org-info.js">
@@ -274,17 +275,23 @@ for the JavaScript code in this tag.
 <ul>
 <li><a href="#sec-3-1">3.1. The data set</a></li>
 <li><a href="#sec-3-2">3.2. Identifying variant sites</a></li>
-<li><a href="#sec-3-3">3.3. Explorative variant analysis</a></li>
-<li><a href="#sec-3-4">3.4. Summarizing and visualizing results</a></li>
-<li><a href="#sec-3-5">3.5. Interactive variant analysis</a></li>
+<li><a href="#sec-3-3">3.3. Understanding the results</a></li>
+<li><a href="#sec-3-4">3.4. Exploratory variant analysis</a></li>
+<li><a href="#sec-3-5">3.5. Summarizing and visualizing results</a></li>
+<li><a href="#sec-3-6">3.6. Interactive variant analysis</a></li>
 </ul>
 </li>
 <li><a href="#sec-4">4. Example Cases</a>
 <ul>
-<li><a href="#sec-4-1">4.1. Case 1: Somatic variant</a></li>
-<li><a href="#sec-4-2">4.2. Case 2: Absence of variants</a></li>
-<li><a href="#sec-4-3">4.3. Case 3: Strand-specific mismatches</a></li>
-<li><a href="#sec-4-4">4.4. Case 4: Strand-specific differences in sequencing depth</a></li>
+<li><a href="#sec-4-1">4.1. 1000 Genomes Simulation Study</a></li>
+<li><a href="#sec-4-2">4.2. AML Genome Sequencing</a>
+<ul>
+<li><a href="#sec-4-2-1">4.2.1. Case 1: Somatic variant</a></li>
+<li><a href="#sec-4-2-2">4.2.2. Case 2: Absence of variants</a></li>
+<li><a href="#sec-4-2-3">4.2.3. Case 3: Strand-specific mismatches</a></li>
+<li><a href="#sec-4-2-4">4.2.4. Case 4: Strand-specific differences in sequencing depth</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#sec-5">5. Supplementary Information</a>
@@ -292,6 +299,7 @@ for the JavaScript code in this tag.
 <li><a href="#sec-5-1">5.1. Strand-specific analysis</a></li>
 <li><a href="#sec-5-2">5.2. Statistical power and sequencing depth</a></li>
 <li><a href="#sec-5-3">5.3. Assessing performance of confidence interval methods</a></li>
+<li><a href="#sec-5-4">5.4. Benchmarking of performance and resources</a></li>
 </ul>
 </li>
 <li><a href="#sec-6">6. References</a></li>
@@ -344,7 +352,7 @@ focusing on alterations that may have occurred in the transition to the
 cancerous tissue, and therefore often termed <i>somatic</i> variants.  However, a
 broader range of questions can be addressed by extending the focus to include
 genomic changes of temporally or spatially separated samples to each other, to
-investigate tumor evolution and subclonal shifts [<a href="#yates_evolution_2012">9</a>].
+investigate tumor evolution and subclonal shifts [<a href="#yates_evolution_2012">11</a>].
 </p>
 
 <p>
@@ -352,7 +360,7 @@ Extending the scope of comparative variant analyses in a cancer related setting
 may require an accompanying change in definitions.  In the classical tumor
 versus normal setting, a <i>somatic</i> event is characterized by both the presence
 of the variant in the tumor and the absence in the matched normal
-[<a href="#roberts_comparative_2013">15</a>].  This definition is not satisfactory for
+[<a href="#roberts_comparative_2013">17</a>].  This definition is not satisfactory for
 comparing different tumor stages against each other.  If we imagine two stages
 of a tumor haboring multiple subclones, variants may be present in both stages
 with changing abundances.  Here, the classical definition of a <i>somatic</i> variant
@@ -365,7 +373,7 @@ control constitutes a special case of this.
 <p>
 Numerous approaches focus on more narrowly defined somatic comparisons,
 motivated by scientific questions in the field of cancer genomics
-[<a href="#kim_comparing_2013">14</a>] [<a href="#roberts_comparative_2013">15</a>].  Most existing methods 
+[<a href="#kim_comparing_2013">16</a>] [<a href="#roberts_comparative_2013">17</a>].  Most existing methods 
 do not allow an explicit statement about the evidence for the absence of a
 putative variant in a sample, and a clear distinction is needed whether a <i>negative</i> call
 results from a true negative site or the lack of statistical power to detect it.
@@ -407,7 +415,8 @@ and the number of non-consensus base calls \(K^{S}_{i}\) for a sample \(S\) at
 position \(i\).  Non-consensus is here defined as base calls that differ from the
 consensus sequence, which can be either the reference sequence or, in a
 comparative setting, the most abundant base call in the control sample.  The
-non-consensus rate \(p^{S}_{i}\) in a sample can then be estimated as
+non-consensus rate \(p^{S}_{i}\), which we assume to be binomially distributed,
+can then be estimated as
 </p>
 
 <p>
@@ -440,10 +449,11 @@ $$\hat{d}_{i} = \hat{p}^{T}_{i} - \hat{p}^{C}_{i}.$$
 </p>
 
 <p>
-Assuming that the true site-specific technical error rates are identical between
-the two matched samples, the difference of the rates yields an unbiased estimate
-for the change in the variant frequency.  Thus, positions not haboring
-biological alterations will results in \(\hat{d}_{i} \approx 0\).
+If we assume that the true site-specific technical error rates are identical
+between the two matched samples  [<a href="#muralidharan_detecting_2012">10</a>], the difference
+of the rates yields an unbiased estimate for the change in the variant
+frequency.  Thus, positions not haboring biological alterations will result in
+\(\hat{d}_{i} \approx 0\).
 </p>
 </div>
 </div>
@@ -455,7 +465,7 @@ biological alterations will results in \(\hat{d}_{i} \approx 0\).
 Distinguishing biological variants from noise requires knowledge
 about the variance of the point estimate \(\hat{d_{i}}\).  By constructing a
 confidence interval (CI) for \(d_{i}\) with confidence level \(\beta\)
-[<a href="#agresti_categorical_2013">13</a>], we assess the certainty of the estimated shift in
+[<a href="#agresti_categorical_2013">15</a>], we assess the certainty of the estimated shift in
 non-consensus frequencies.  The probability of the true value being outside the
 confidence interval is less than \(\alpha = 1 - \beta\).  This is in concordance
 with the type I or \(\alpha\) error definition in statistical testing.
@@ -465,15 +475,15 @@ with the type I or \(\alpha\) error definition in statistical testing.
 Under the assumption that the non-consensus counts \(K^{S}_{i}\) in our samples
 follow binomial distributions with parameters \(p^{S}_{i}\) and \(N^{S}_{i}\),
 several methods have been established for estimating confidence intervals for
-the difference of two rate parameters [<a href="#fleiss_statistical_2013">10</a>]
-[<a href="#fagerland_recommended_2011">6</a>].  The performance of an approach is generally
+the difference of two rate parameters [<a href="#fleiss_statistical_2013">13</a>]
+[<a href="#fagerland_recommended_2011">7</a>].  The performance of an approach is generally
 described in term of their coverage probabilities indicating the probability of
 a confidence interval to cover the true value (see <a href="#sec-5-3">5.3</a>).  Coverage probabilities greater and less than the
 confidence level \(\beta\) describe conservative and liberal behaviors,
 respectively. Due to the conservative coverage probabilities and high
 computational effort of exact confidence interval estimates, approximate methods
 are generally preferred [<a href="#agresti_approximate_1998">1</a>]
-[<a href="#fagerland_recommended_2011">6</a>].
+[<a href="#fagerland_recommended_2011">7</a>].
 </p>
 
 <p>
@@ -503,11 +513,11 @@ $$\zeta = \frac{1}{4} z^2,$$
 </p>
 
 <p>
-and \(z = z_{(1-\beta)/2}\) (the upper \((1-\beta)/2\) percentile of the standard
+and \(z = z_{(1-\beta)/2}\) as the upper \((1-\beta)/2\) percentile of the standard
 normal distribution), is an approximation of the score test-based
 confidence interval.  Several publications emphasize the usefulness and
 advantages of the AC method over related approaches
-[<a href="#fagerland_recommended_2011">6</a>] [<a href="#piegorsch_sample_2004">3</a>]
+[<a href="#fagerland_recommended_2011">7</a>] [<a href="#piegorsch_sample_2004">3</a>]
 [<a href="#schaarschmidt_approximate_2008">5</a>].
 </p>
 </div>
@@ -546,7 +556,7 @@ certainty of the estimate
 </li>
 </ol>
 
-<!--begin.rcode fig:ci_cases_plot, echo=FALSE, message=FALSE, fig.width=14, fig.height=7, fig.cap='Illustrative cases of confidence intervals for somatic variant frequency estimates'
+<!--begin.rcode ci_cases_plot, echo=FALSE, message=FALSE, fig.width=14, fig.height=7, fig.cap='Illustrative cases of confidence intervals for somatic variant frequency estimates'
 library(ggplot2)
 
 df = data.frame(
@@ -573,13 +583,29 @@ end.rcode-->
 <div class="outline-text-3" id="text-2-3">
 <p>
 Focusing on the comparative shift of non-consensus frequencies can detect and
-distinguish different types of events: Gains and losses of variants are
-characterized by positive and negative values of \(d\), respectively.  Since
-<code>Rariant</code> does not make explicit assumptions about the abundance of a potential
-variant in the control sample, we are further able to find clonal shifts, for
-example between different tumor samples, or losses of heterozygocity.  For a
-differentiated interpretation of the results, we classify a set of variants
-positions into:
+distinguish different types of events.  Since <code>Rariant</code> does not make explicit
+assumptions about the abundance of a potential variant in the control sample, we
+are further able to find clonal shifts, for example between different tumor
+samples, or losses of heterozygocity. Generally, gains and losses of variant
+alleles are characterized by positive and negative values of \(d\), respectively.
+For a differentiated interpretation of the results, we classify a variants into
+one of four classes:
+</p>
+
+<dl class="org-dl">
+<dt> somatic </dt><dd>A somatic variant that does not occur in the control sample
+</dd>
+<dt> hetero/LOH </dt><dd>A shift away from heterozygous SNP in the control sample
+</dd>
+<dt> undecided </dt><dd>Both of the 'somatic' or 'hetero' are possible
+</dd>
+<dt> powerless </dt><dd>A distinction between the two classes cannot be made due to a
+lack of power
+</dd>
+</dl>
+
+<p>
+The classification is based on two binomial tests for each position:
 </p>
 
 <ol class="org-ol">
@@ -589,8 +615,8 @@ sample, rejecting a binomial test with the alternative hypothesis \(H_{1}:
 </li>
 
 <li>Sites with a loss of heterozygosity with a shift away from a heterozygous
-variant in the control sample, rejecting a binomial test with the alternative
-hypothesis \(H_{1}: p^{C} \neq \frac{1}{2}\).
+variant in the control sample, rejecting a binomial test with the
+alternative hypothesis \(H_{1}: p^{C} \neq \frac{1}{2}\).
 </li>
 </ol>
 </div>
@@ -600,28 +626,41 @@ hypothesis \(H_{1}: p^{C} \neq \frac{1}{2}\).
 <h3 id="sec-2-4"><span class="section-number-3">2.4</span> Identifying variant sites in large datasets</h3>
 <div class="outline-text-3" id="text-2-4">
 <p>
-For detecting sites that exhibit a shift in variant frequency between two
-samples, we employ the following strategy at each genomic position individually:
+The method that we have described before is suited for detecting variant
+positions efficiently in large sequencing datasets, including whole-exome and
+whole-genome sequencing.  For this purpose, we test for a shift in non-consensus
+frequencies between two samples at each genomic position individually:
 </p>
 
 <ol class="org-ol">
-<li>Extract the base counts table (also known as <i>tallies</i>) from the aligned
-reads.
+<li>Form the base counts table for four bases A, C, G, T from the aligned
+reads.  In order to reduce the number of false counts, we can optionally
+exclude reads with low mapping quality and clip the head of each read.
 </li>
 
-<li>Calculate the sequencing depth and mismatch counts for both samples, based on
-the consensus sequence.
+<li>Determine the consensus sequence: In a comparative setting, we will use the
+most abundant base call.
 </li>
 
-<li>Prefilter sites with a Fisher's Exact Test, comparing number of mismatching
-and total bases between the samples.  The p-values are corrected for multiple
-testing according to the Benjamini-Hochberg procedure.  Only positions
-rejecting the null hypothesis at a significance level \(\alpha\) are furtheron
-considered as potential variants.
+<li>Calculate the sequencing depth \(N^{S}_{i}\), mismatch counts \(K^{S}_{i}\), and
+derived statistics for both samples, based on the consensus sequence (see
+<a href="#sec-2-1">2.1</a>).
 </li>
 
-<li>Calculation of Agresti-Caffo confidence intervals with confidence level
-\(\beta\), and selection of sites that reject the null hypothesis.
+<li>Find potential variant sites with a Fisher's Exact Test, comparing the number
+of mismatching and total bases between the samples: \({K^{T}_{i}, N^{T}_{i},
+   K^{C}_{i}, N^{C}_{i}}\).  The p-values are corrected for multiple testing
+according to the Benjamini-Hochberg procedure.  Only positions rejecting the
+null hypothesis at a significance level \(\alpha\) are furtheron considered as
+potential variants.
+</li>
+
+<li>Calculate Agresti-Caffo confidence intervals with confidence level \(\beta\),
+in order to evaluate presence or absence of the variant (see <a href="#sec-2-2">2.2</a>).
+</li>
+
+<li>Classify variant sites into the groups: somatic, LOH, undecided, and
+powerless (see <a href="#sec-2-3">2.3</a>).
 </li>
 </ol>
 </div>
@@ -635,7 +674,7 @@ considered as potential variants.
 In the following, we show an complete workflow for identifying SNVs from aligned
 short reads.  For illustration purposes, we will focus on data from a whole
 exome sequencing (WES) study, as part of the <code>h5vcData</code> package
-[<a href="#pyl_h5vcdata:_2013">11</a>], covering a subset of the NRAS gene.
+[<a href="#pyl_h5vcdata:_2013">12</a>], covering a subset of the NRAS gene.
 </p>
 
 <!--begin.rcode results='hide', message=FALSE, warning=FALSE
@@ -654,7 +693,8 @@ end.rcode-->
 <div class="outline-text-3" id="text-3-1">
 <p>
 We compare an AML tumor sample with the matching control sample of a single
-patient, starting with the alignments stored in <code>BAM</code> files.
+patient, starting with the alignments stored in <code>BAM</code> files.  Here, we will use
+the <code>system.file</code> function to construct the path to our example data files.
 </p>
 
 <!--begin.rcode 
@@ -710,8 +750,54 @@ The defaults are suited for current Illumina sequencing data sets.
 </div>
 
 <div id="outline-container-sec-3-3" class="outline-3">
-<h3 id="sec-3-3"><span class="section-number-3">3.3</span> Explorative variant analysis</h3>
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> Understanding the results</h3>
 <div class="outline-text-3" id="text-3-3">
+<p>
+The columns of the <code>GRanges</code> object returned by <code>rariant</code> summarizes the
+evidence for the presence or absence of a variant:
+</p>
+
+<dl class="org-dl">
+<dt> testMismatch, controlMismatch </dt><dd>Non-consensus base counts \(K_{i}^{T}\) and
+\(K_{i}^{C}\) in the test and control sample
+</dd>
+<dt> testDepth, controlDepth </dt><dd>Sequencing depth \(N_{i}^{T}\) and \(N_{i}^{C}\) in the
+test and control sample
+</dd>
+<dt> testRef, controlRef </dt><dd>Most abundant base call in the test and control sample,
+with <code>N</code> refering to multiple ones.
+</dd>
+<dt> testAlt </dt><dd>Most abundant mismatch/non-consensus base call, with <code>N</code> refering
+to multiple ones.
+</dd>
+<dt> ref </dt><dd>Consensus sequence
+</dd>
+<dt> d, ds </dt><dd>Estimated shift \(\hat{d}_{i}\) of the non-consensus frequencies, with
+<code>ds</code> as the shrinkage estimate
+</dd>
+<dt> p1, p2 </dt><dd>Non-consensus rates \(p_{i}^{T}\) and \(p_{i}^{C}\) in the test and
+control sample
+</dd>
+<dt> lower, upper </dt><dd>Lower and upper bound of the confidence interval for \(d\)
+</dd>
+<dt> pval, padj </dt><dd>Raw and Benjamini-Hochberg adjusted p-value of the Fisher's
+Exact test
+</dd>
+<dt> called </dt><dd>Was the site called as a variant?
+</dd>
+<dt> eventType </dt><dd>Type of variant event: 'somatic', 'loh', 'undecided'.
+</dd>
+<dt> padjSomatic, padjHetero, pvalSomatic, pvalHetero </dt><dd>Raw and
+Benjamini-Hochberg adjusted p-values of the binomial tests for the
+respective event types
+</dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-sec-3-4" class="outline-3">
+<h3 id="sec-3-4"><span class="section-number-3">3.4</span> Exploratory variant analysis</h3>
+<div class="outline-text-3" id="text-3-4">
 <p>
 By default, only identified variants are returned.  We can also obtain the
 results for all sites in our region of interest with <code>select = FALSE</code>.  This
@@ -727,14 +813,14 @@ end.rcode-->
 </div>
 </div>
 
-<div id="outline-container-sec-3-4" class="outline-3">
-<h3 id="sec-3-4"><span class="section-number-3">3.4</span> Summarizing and visualizing results</h3>
-<div class="outline-text-3" id="text-3-4">
+<div id="outline-container-sec-3-5" class="outline-3">
+<h3 id="sec-3-5"><span class="section-number-3">3.5</span> Summarizing and visualizing results</h3>
+<div class="outline-text-3" id="text-3-5">
 <p>
 Sites harboring potential biological variants can be identified by confidence
 intervals that reject non-consensus frequencies shifts of 0.  The <code>ciOutside</code>
-function finds sites whose confidence intervals do not overlap a certain value.
-As we have seen before, the <i>NRAS</i> locus contains one such site.
+function finds sites whose confidence intervals do not overlap a value of
+interest.  As we have seen before, the <i>NRAS</i> locus contains one such site.
 </p>
 
 <!--begin.rcode 
@@ -775,7 +861,7 @@ correlates with sequencing depth of the samples.  We describe this relationship
 in more detail in the supplementary section <a href="#sec-5-2">5.2</a>.
 </p>
 
-<!--begin.rcode fig.width=7, fig.height=7, fig.cap='NRAS: Non-variant site with sequencing depth'
+<!--begin.rcode fig.width=14, fig.height=7, fig.cap='NRAS: Non-variant site with sequencing depth'
 ind_low = (100-40):(100+40)
 
 p_low = plotConfidenceIntervals(vars_all[ind_low])
@@ -788,9 +874,9 @@ end.rcode-->
 </div>
 </div>
 
-<div id="outline-container-sec-3-5" class="outline-3">
-<h3 id="sec-3-5"><span class="section-number-3">3.5</span> Interactive variant analysis</h3>
-<div class="outline-text-3" id="text-3-5">
+<div id="outline-container-sec-3-6" class="outline-3">
+<h3 id="sec-3-6"><span class="section-number-3">3.6</span> Interactive variant analysis</h3>
+<div class="outline-text-3" id="text-3-6">
 <p>
 With the <code>rariantInspect</code> interface, the results of the <code>rariant</code> can be
 explored interactively in the web browser.  Since we cannot demonstrate this in
@@ -801,18 +887,135 @@ tables can be displayey conveniently and subset according to multiple criteria.
 <!--begin.rcode eval=FALSE
 rariantInspect(vars_all)
 end.rcode-->
+
+
+
+<div class="figure">
+<p><img src="rariant-inspect-ci.png" alt="rariant-inspect-ci.png" width="90%" />
+</p>
+<p><span class="figure-number">Figure 1:</span> Interactive analysis, showing confidence interval plots</p>
+</div>
+
+
+<div class="figure">
+<p><img src="rariant-inspect-shift.png" alt="rariant-inspect-shift.png" width="90%" />
+</p>
+<p><span class="figure-number">Figure 2:</span> Interactive analysis, showing non-consensus rate shift plots</p>
+</div>
 </div>
 </div>
 </div>
 
+
 <div id="outline-container-sec-4" class="outline-2">
 <h2 id="sec-4"><span class="section-number-2">4</span> Example Cases</h2>
 <div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> 1000 Genomes Simulation Study</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+We want to further demostrate the usage and abilities of the <code>Rariant</code> package
+on a real-life data set.  Due to legal and privacy issues, most human cancer
+sequencing data is not publicly accessible and therefore cannot serve as an
+example data set here.  Alternatively, we conduct an analysis to mimic the
+characteristics of current cancer sequencing studies.
+</p>
+
+<p>
+For the purpose of the analysis, we compare three samples from the 1000 Genomes
+project [<a href="#the_1000_genomes_project_consortium_map_2010">6</a>], serving as a
+control/normal (<code>control</code>) and two related test/tumor samples (<code>test</code> and
+<code>test2</code>).  Further, we simulate a clonal mixture (<code>mix</code>) of the two test samples
+by combining their reads.
+</p>
+
+<!--begin.rcode results='hide', message=FALSE, warning=FALSE
+library(Rariant)
+
+library(GenomicRanges)
+library(ggbio)
+end.rcode-->
+
+
+<!--begin.rcode 
+tp53_region = GRanges("chr17", IRanges(7571720, 7590863))
+end.rcode-->
+
+
+<!--begin.rcode 
+test1_bam = system.file("extdata", "test.bam", package = "Rariant", mustWork = TRUE)
+test2_bam = system.file("extdata", "test2.bam", package = "Rariant", mustWork = TRUE)
+control_bam = system.file("extdata", "control.bam", package = "Rariant", mustWork = TRUE)
+mix_bam = system.file("extdata", "mix.bam", package = "Rariant", mustWork = TRUE)
+end.rcode-->
+
+
+<!--begin.rcode 
+v_test1 = rariant(test1_bam, control_bam, tp53_region, select = FALSE)
+v_test2 = rariant(test2_bam, control_bam, tp53_region, select = FALSE)
+v_mix = rariant(mix_bam, control_bam, tp53_region, select = FALSE)
+end.rcode-->
+
+<p>
+In the following, we will look at positions which showed an significant effect
+in at least one sample.
+</p>
+
+<!--begin.rcode 
+poi = unique(c(v_test1[ciOutside(v_test1)], v_test2[ciOutside(v_test2)], v_mix[ciOutside(v_mix)]))
+
+length(poi)
+
+head(poi)
+end.rcode-->
+
+
+<!--begin.rcode 
+v_poi1 = v_test1[v_test1 %in% poi]
+v_poi2 = v_test2[v_test2 %in% poi]
+v_poi3 = v_mix[v_mix %in% poi]
+end.rcode-->
+
+
+<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Confidence intervals for simulition study'
+py1 = plotConfidenceIntervals(v_poi1, color = "eventType")
+py2 = plotConfidenceIntervals(v_poi2, color = "eventType")
+py3 = plotConfidenceIntervals(v_poi3, color = "eventType")
+
+t = tracks(py1, py2, py3)
+
+print(t)
+end.rcode-->
+
+
+<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Abundance shifts for simulition study'
+pa1 = plotAbundanceShift(v_poi1)
+pa2 = plotAbundanceShift(v_test2)
+pa3 = plotAbundanceShift(v_mix)
+
+t2 = tracks(pa1, pa2, pa3)
+
+print(t2)
+end.rcode-->
+
+
+<!--begin.rcode 
+selectCalls <- function(x, called = TRUE, padj, pval, value) {
+    res = x[x$called %in% called]
+    return(res)
+}
+end.rcode-->
+</div>
+</div>
+
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> AML Genome Sequencing</h3>
+<div class="outline-text-3" id="text-4-2">
 <p>
 To illustrate typical cases that can be distinguished with the proposed methodology
 on real data, we investigate a tumor/normal comparison of a single patient as
 part of an AML WGS study.  The data is part of the <code>h5vcData</code> package
-[<a href="#pyl_h5vcdata:_2013">11</a>].  We will focus on the <a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000128383"><i>APOBEC3A</i></a> locus on chromosome
+[<a href="#pyl_h5vcdata:_2013">12</a>].  We will focus on the <a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000128383"><i>APOBEC3A</i></a> locus on chromosome
 22, and will use two types of plots of a set of exemplary regions:
 </p>
 
@@ -821,7 +1024,7 @@ part of an AML WGS study.  The data is part of the <code>h5vcData</code> package
 mismatches (in colors) separated across strands, with the normal in the top
 and the tumor sample in the bottom panel.  Positive and negative values
 correspond to the plus and minus strand, respectively.  The plots are
-generated with the <code>h5vc</code> package [<a href="#pyl_h5vc:_2014">16</a>], and details on how to
+generated with the <code>h5vc</code> package [<a href="#pyl_h5vc:_2014">18</a>], and details on how to
 generate these are explained in the package vignette.
 </li>
 
@@ -961,9 +1164,9 @@ end.rcode-->
 </div>
 
 
-<div id="outline-container-sec-4-1" class="outline-3">
-<h3 id="sec-4-1"><span class="section-number-3">4.1</span> Case 1: Somatic variant</h3>
-<div class="outline-text-3" id="text-4-1">
+<div id="outline-container-sec-4-2-1" class="outline-4">
+<h4 id="sec-4-2-1"><span class="section-number-4">4.2.1</span> Case 1: Somatic variant</h4>
+<div class="outline-text-4" id="text-4-2-1">
 <p>
 The first example shows a potential heterozygous somatic variant, for which
 there is no evidence in the control sample.  While the mismatch frequencies differ
@@ -991,9 +1194,9 @@ end.rcode-->
 </div>
 </div>
 
-<div id="outline-container-sec-4-2" class="outline-3">
-<h3 id="sec-4-2"><span class="section-number-3">4.2</span> Case 2: Absence of variants</h3>
-<div class="outline-text-3" id="text-4-2">
+<div id="outline-container-sec-4-2-2" class="outline-4">
+<h4 id="sec-4-2-2"><span class="section-number-4">4.2.2</span> Case 2: Absence of variants</h4>
+<div class="outline-text-4" id="text-4-2-2">
 <p>
 In contrast to the previous case does this region not show a somatic variant.
 The confidence intervals are all consistent with a somatic variant frequency of
@@ -1021,9 +1224,9 @@ end.rcode-->
 </div>
 </div>
 
-<div id="outline-container-sec-4-3" class="outline-3">
-<h3 id="sec-4-3"><span class="section-number-3">4.3</span> Case 3: Strand-specific mismatches</h3>
-<div class="outline-text-3" id="text-4-3">
+<div id="outline-container-sec-4-2-3" class="outline-4">
+<h4 id="sec-4-2-3"><span class="section-number-4">4.2.3</span> Case 3: Strand-specific mismatches</h4>
+<div class="outline-text-4" id="text-4-2-3">
 <p>
 In the third example region, mismatches are predominantly present on the minus
 strand.  This behaviour is also reflected in the confidence intervals, comparing
@@ -1050,9 +1253,9 @@ end.rcode-->
 </div>
 </div>
 
-<div id="outline-container-sec-4-4" class="outline-3">
-<h3 id="sec-4-4"><span class="section-number-3">4.4</span> Case 4: Strand-specific differences in sequencing depth</h3>
-<div class="outline-text-3" id="text-4-4">
+<div id="outline-container-sec-4-2-4" class="outline-4">
+<h4 id="sec-4-2-4"><span class="section-number-4">4.2.4</span> Case 4: Strand-specific differences in sequencing depth</h4>
+<div class="outline-text-4" id="text-4-2-4">
 <p>
 The fourth region denotes a case with deviating sequencing depth between the
 strands, which can be observed at the border of exons in exon-sequencing
@@ -1080,6 +1283,7 @@ end.rcode-->
 </div>
 </div>
 </div>
+</div>
 
 <div id="outline-container-sec-5" class="outline-2">
 <h2 id="sec-5"><span class="section-number-2">5</span> Supplementary Information</h2>
@@ -1095,7 +1299,7 @@ two strands.  The upper row (cases 4-7) corresponds to sites with overlapping
 CIs, whereas the lower row (cases 1-3) shows cases of disagreements between the
 CIs indicative of strand biases.  When analyzing the probability for the overlap
 of confidence intervals, an adjustment of the confidence level has to be taken
-into account [<a href="#knol_misuse_2011">7</a>].
+into account [<a href="#knol_misuse_2011">8</a>].
 </p>
 
 <!--begin.rcode echo=FALSE, message=FALSE, fig.width=14, fig.height=7, fig.cap='Illustrative cases of confidence intervals for somatic variant frequency estimates for two strands'
@@ -1124,7 +1328,7 @@ practices for short-read processing</i>).  In the presence of strand biases, poo
 the counts of both plus and minus strand may be not desirable.  A possible
 solution may be to perform a strand-specific analysis, and later combine the
 resulting statistics. Gerstung and colleagues discuss different approaches for
-combining p-values [<a href="#gerstung_reliable_2012">8</a>], in particular taking the
+combining p-values [<a href="#gerstung_reliable_2012">9</a>], in particular taking the
 minimum, maximum, average, or Fisher combination.  These can be also applied for
 confidence intervals, with Fisher's method being equivalent to taking the sum of
 both strands.
@@ -1162,7 +1366,7 @@ given by their coverage probabilities.  Ideally, we would expect a method to
 have coverage probabilities close to the nominal confidence level &beta; over a
 wide range in the parameter space.  Previous publications analyzing the
 performance focus on parameter settings that deviate from those of sequencing
-data sets [<a href="#fagerland_recommended_2011">6</a>].  Therefore, we perform a simulation
+data sets [<a href="#fagerland_recommended_2011">7</a>].  Therefore, we perform a simulation
 that demonstrates the behavior of the Agrest-Caffo methods for a whole-genome
 sequencing study.  For a fixed sequencing depth of 30 in both test and control
 sample, the coverage probability of 95% AC confidence intervals is computed for
@@ -1197,6 +1401,23 @@ shows a conservative perfomance.
 </p>
 </div>
 </div>
+
+<div id="outline-container-sec-5-4" class="outline-3">
+<h3 id="sec-5-4"><span class="section-number-3">5.4</span> Benchmarking of performance and resources</h3>
+<div class="outline-text-3" id="text-5-4">
+<p>
+For an analysis of two matched human tumor samples, we performed a benchmark to
+assess the computational time and memory usage on a standard laptop (Thinkpad
+X220 built in 2011).  Both samples contain about 95M reads mapped to the
+1000genomes reference sequence reads that are considered in the analysis.  For
+the analysis of chromosome 22, the analysis with default parameters required
+~873s and 600MB of RAM.  For an analysis of all linear toplevel chromosomes
+(autosomes and allosomes), this would require ~15h of time.  Please consider
+that the current version of <code>Rariant</code> is under active development and
+computational efficiency will increase with newer versions.
+</p>
+</div>
+</div>
 </div>
 
 
@@ -1215,9 +1436,10 @@ shows a conservative perfomance.
 </td>
 <td class="bibtexitem">
 Alan Agresti and Brent&nbsp;A. Coull.
- Approximate is better than “exact” for interval estimation of
+ Approximate is better than
+  exact for interval estimation of
   binomial proportions.
- <em>The American Statistician</em>, 52(2):119–126, 1998.
+ <em>The American Statistician</em>, 52(2):119126, 1998.
 [&nbsp;<a href="http://www.tandfonline.com/doi/abs/10.1080/00031305.1998.10480550">http</a>&nbsp;]
 
 </td>
@@ -1232,7 +1454,7 @@ Alan Agresti and Brent&nbsp;A. Coull.
 Alan Agresti and Brian Caffo.
  Simple and effective confidence intervals for proportions and
   differences of proportions result from adding two successes and two failures.
- <em>The American Statistician</em>, 54(4):280–288, 2000.
+ <em>The American Statistician</em>, 54(4):280288, 2000.
 [&nbsp;<a href="http://amstat.tandfonline.com/doi/full/10.1080/00031305.2000.10474560">http</a>&nbsp;]
 
 </td>
@@ -1261,10 +1483,10 @@ Walter&nbsp;W. Piegorsch.
 </td>
 <td class="bibtexitem">
 Yoav Benjamini and Daniel Yekutieli.
- False discovery rate–adjusted multiple confidence intervals for
-  selected parameters.
+ False discovery rateadjusted multiple confidence
+  intervals for selected parameters.
  <em>Journal of the American Statistical Association</em>,
-  100(469):71–81, 2005.
+  100(469):7181, 2005.
 [&nbsp;<a href="http://amstat.tandfonline.com/doi/abs/10.1198/016214504000001907">http</a>&nbsp;]
 
 </td>
@@ -1279,7 +1501,7 @@ Yoav Benjamini and Daniel Yekutieli.
 Frank Schaarschmidt, Martin Sill, and Ludwig&nbsp;A. Hothorn.
  Approximate simultaneous confidence intervals for multiple contrasts
   of binomial proportions.
- <em>Biometrical Journal</em>, 50(5):782–792, 2008.
+ <em>Biometrical Journal</em>, 50(5):782792, 2008.
 [&nbsp;<a href="http://dx.doi.org/10.1002/bimj.200710465">DOI</a>&nbsp;| 
 <a href="http://onlinelibrary.wiley.com/doi/10.1002/bimj.200710465/abstract">http</a>&nbsp;]
 
@@ -1289,7 +1511,22 @@ Frank Schaarschmidt, Martin Sill, and Ludwig&nbsp;A. Hothorn.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="fagerland_recommended_2011">6</a>]
+[<a name="the_1000_genomes_project_consortium_map_2010">6</a>]
+</td>
+<td class="bibtexitem">
+The 1000 Genomes Project Consortium.
+ A map of human genome variation from population-scale sequencing.
+ <em>Nature</em>, 467(7319):1061-1073, October 2010.
+[&nbsp;<a href="http://dx.doi.org/10.1038/nature09534">DOI</a>&nbsp;| 
+<a href="http://www.nature.com/nature/journal/v467/n7319/full/nature09534.html">.html</a>&nbsp;]
+
+</td>
+</tr>
+
+
+<tr valign="top">
+<td align="right" class="bibtexnumber">
+[<a name="fagerland_recommended_2011">7</a>]
 </td>
 <td class="bibtexitem">
 Morten&nbsp;W. Fagerland, Stian Lydersen, and Petter Laake.
@@ -1304,7 +1541,7 @@ Morten&nbsp;W. Fagerland, Stian Lydersen, and Petter Laake.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="knol_misuse_2011">7</a>]
+[<a name="knol_misuse_2011">8</a>]
 </td>
 <td class="bibtexitem">
 Mirjam&nbsp;J. Knol, Wiebe&nbsp;R. Pestman, and Diederick&nbsp;E. Grobbee.
@@ -1321,7 +1558,7 @@ Mirjam&nbsp;J. Knol, Wiebe&nbsp;R. Pestman, and Diederick&nbsp;E. Grobbee.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="gerstung_reliable_2012">8</a>]
+[<a name="gerstung_reliable_2012">9</a>]
 </td>
 <td class="bibtexitem">
 Moritz Gerstung, Christian Beisel, Markus Rechsteiner, Peter Wild, Peter
@@ -1338,7 +1575,27 @@ Moritz Gerstung, Christian Beisel, Markus Rechsteiner, Peter Wild, Peter
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="yates_evolution_2012">9</a>]
+[<a name="muralidharan_detecting_2012">10</a>]
+</td>
+<td class="bibtexitem">
+Omkar Muralidharan, Georges Natsoulis, John Bell, Hanlee Ji, and Nancy&nbsp;R.
+  Zhang.
+ Detecting mutations in mixed sample sequencing data using empirical
+  bayes.
+ <em>The Annals of Applied Statistics</em>, 6(3):1047-1067, September
+  2012.
+ Zentralblatt MATH identifier06096521, Mathematical Reviews number
+  (MathSciNet) MR3012520.
+[&nbsp;<a href="http://dx.doi.org/10.1214/12-AOAS538">DOI</a>&nbsp;| 
+<a href="http://projecteuclid.org/euclid.aoas/1346418573">http</a>&nbsp;]
+
+</td>
+</tr>
+
+
+<tr valign="top">
+<td align="right" class="bibtexnumber">
+[<a name="yates_evolution_2012">11</a>]
 </td>
 <td class="bibtexitem">
 Lucy&nbsp;R. Yates and Peter&nbsp;J. Campbell.
@@ -1353,7 +1610,20 @@ Lucy&nbsp;R. Yates and Peter&nbsp;J. Campbell.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="fleiss_statistical_2013">10</a>]
+[<a name="pyl_h5vcdata:_2013">12</a>]
+</td>
+<td class="bibtexitem">
+Paul&nbsp;Theodor Pyl.
+ h5vcData: example data for the h5vc package, 2013.
+[&nbsp;<a href="http://bioconductor.org/packages/release/data/experiment/html/h5vcData.html">.html</a>&nbsp;]
+
+</td>
+</tr>
+
+
+<tr valign="top">
+<td align="right" class="bibtexnumber">
+[<a name="fleiss_statistical_2013">13</a>]
 </td>
 <td class="bibtexitem">
 Joseph&nbsp;L. Fleiss, Bruce Levin, and Myunghee&nbsp;Cho Paik.
@@ -1367,27 +1637,14 @@ Joseph&nbsp;L. Fleiss, Bruce Levin, and Myunghee&nbsp;Cho Paik.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="pyl_h5vcdata:_2013">11</a>]
-</td>
-<td class="bibtexitem">
-Paul&nbsp;Theodor Pyl.
- h5vcData: example data for the h5vc package, 2013.
-[&nbsp;<a href="http://bioconductor.org/packages/release/data/experiment/html/h5vcData.html">.html</a>&nbsp;]
-
-</td>
-</tr>
-
-
-<tr valign="top">
-<td align="right" class="bibtexnumber">
-[<a name="decrouez_split_2013">12</a>]
+[<a name="decrouez_split_2013">14</a>]
 </td>
 <td class="bibtexitem">
 Geoffrey Decrouez and Peter Hall.
  Split sample methods for constructing confidence intervals for
   binomial and poisson parameters.
  <em>Journal of the Royal Statistical Society: Series B (Statistical
-  Methodology)</em>, page n/a–n/a, 2013.
+  Methodology)</em>, page n/an/a, 2013.
 [&nbsp;<a href="http://dx.doi.org/10.1111/rssb.12051">DOI</a>&nbsp;| 
 <a href="http://onlinelibrary.wiley.com/doi/10.1111/rssb.12051/abstract">http</a>&nbsp;]
 
@@ -1397,7 +1654,7 @@ Geoffrey Decrouez and Peter Hall.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="agresti_categorical_2013">13</a>]
+[<a name="agresti_categorical_2013">15</a>]
 </td>
 <td class="bibtexitem">
 Alan Agresti.
@@ -1410,7 +1667,7 @@ Alan Agresti.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="kim_comparing_2013">14</a>]
+[<a name="kim_comparing_2013">16</a>]
 </td>
 <td class="bibtexitem">
 Su&nbsp;Y. Kim and Terence&nbsp;P. Speed.
@@ -1426,7 +1683,7 @@ Su&nbsp;Y. Kim and Terence&nbsp;P. Speed.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="roberts_comparative_2013">15</a>]
+[<a name="roberts_comparative_2013">17</a>]
 </td>
 <td class="bibtexitem">
 Nicola&nbsp;D. Roberts, R.&nbsp;Daniel Kortschak, Wendy&nbsp;T. Parker, Andreas&nbsp;W. Schreiber,
@@ -1444,7 +1701,7 @@ Nicola&nbsp;D. Roberts, R.&nbsp;Daniel Kortschak, Wendy&nbsp;T. Parker, Andreas&
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="pyl_h5vc:_2014">16</a>]
+[<a name="pyl_h5vc:_2014">18</a>]
 </td>
 <td class="bibtexitem">
 Paul&nbsp;Theodor Pyl, Julian Gehring, Bernd Fischer, and Wolfgang Huber.

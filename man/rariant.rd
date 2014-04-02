@@ -158,10 +158,10 @@
     \item{eventType}{The class of the event: somatic, heterozygous,
       undecided.}
 
-    \item{padj_somatic, padj_hetero}{BH-adjusted p-values of the
+    \item{padjSomatic, padjHetero}{BH-adjusted p-values of the
       binomial tests for 'eventType'.}
 
-    \item{pval_somatic, pval_hetero}{Raw p-values of the binomial tests
+    \item{pvalSomatic, pvalHetero}{Raw p-values of the binomial tests
       for 'eventType'.}
     
   }

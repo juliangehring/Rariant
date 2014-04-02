@@ -43,8 +43,8 @@ comparativeMismatch <- function(test_tally, control_tally, strand = c("both", "p
         chr = seqchar(roi), pos = start(roi):end(roi),
         testMismatch = testMismatch, controlMismatch = controlMismatch,
         testDepth = testDepth, controlDepth = controlDepth,
-        test_ref = ind2base(test_base), test_alt = ind2base(test_alt_base),
-        control_ref = ind2base(control_base), ref = ind2base(ref_base),
+        testRef = ind2base(test_base), testAlt = ind2base(test_alt_base),
+        controlRef = ind2base(control_base), ref = ind2base(ref_base),
         refDepth = refDepth, altDepth = altDepth
         )
 

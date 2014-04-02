@@ -10,6 +10,7 @@ rariantInspect <- function(x) {
             checkboxInput("show_somatic", "Show somatic events", TRUE),
             checkboxInput("show_hetero", "Show hetero events", TRUE),
             checkboxInput("show_undecided", "Show undecided events", TRUE),
+            checkboxInput("show_powerless", "Show powerless events", TRUE),
             checkboxInput("select", "Show only calls", TRUE),
             numericInput("alpha", "Threshold on adjusted p-values", 0.1),
             submitButton("Call Variants"),
@@ -33,11 +34,13 @@ rariantInspect <- function(x) {
             res = globalVariantSet
             idx_show = logical(length(res))
             if(input$show_somatic)
-                idx_show[res$event_type %in% "somatic"] = TRUE
+                idx_show[res$eventType %in% "somatic"] = TRUE
             if(input$show_hetero)
-                idx_show[res$event_type %in% "hetero"] = TRUE
+                idx_show[res$eventType %in% "hetero"] = TRUE
             if(input$show_undecided)
-                idx_show[res$event_type %in% "undecided"] = TRUE
+                idx_show[res$eventType %in% "undecided"] = TRUE
+            if(input$show_powerless)
+                idx_show[res$eventType %in% "powerless"] = TRUE
             res = res[idx_show]
             if(input$select)
                 res = res[res$padj < input$alpha]
@@ -46,14 +49,15 @@ rariantInspect <- function(x) {
             res
         })            
         output$ci_plot = renderPlot({
-            print(plotConfidenceIntervals(data(), color = "event_type")) # + scale_color_hue(drop = FALSE) ## import
+            print(plotConfidenceIntervals(data(), color = "eventType")) # + scale_color_hue(drop = FALSE) ## import
         })
         output$single_plot = renderPlot({
             d = data()
-            p1 = print(plotConfidenceIntervals(d[d$event_type %in% "somatic", ])) + ylab("")
-            p2 = print(plotConfidenceIntervals(d[d$event_type %in% "hetero", ])) + ylab("")
-            p3 = print(plotConfidenceIntervals(d[d$event_type %in% "undecided", ])) + ylab("")
-            t = ggbio::tracks(p1, p2, p3)
+            p1 = print(plotConfidenceIntervals(d[d$eventType %in% "somatic", ])) + ylab("")
+            p2 = print(plotConfidenceIntervals(d[d$eventType %in% "hetero", ])) + ylab("")
+            p3 = print(plotConfidenceIntervals(d[d$eventType %in% "undecided", ])) + ylab("")
+            p4 = print(plotConfidenceIntervals(d[d$eventType %in% "powerless", ])) + ylab("")
+            t = ggbio::tracks(p1, p2, p3, p4)
             print(t)
         })
         output$shift_plot = renderPlot({
