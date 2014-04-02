@@ -40,8 +40,7 @@ rariant <- function(test, control, region, beta = 0.95, alpha = 1 - beta, select
             ## ignore:
             ## 1. no coverage in any sample
             ## 2. NAs
-            ## 3. no mismatches in both samples
-            idx_good = dx$testDepth > 0 & dx$controlDepth > 0 & !is.na(dx$testDepth) & !is.na(dx$controlDepth) & !is.na(dx$testMismatch) & !is.na(dx$controlMismatch) & (dx$testMismatch > 0 | dx$controlMismatch > 0)
+            idx_good = dx$testDepth > 0 & dx$controlDepth > 0 & !is.na(dx$testDepth) & !is.na(dx$controlDepth) & !is.na(dx$testMismatch) & !is.na(dx$controlMismatch)
             if(!any(idx_good))
                 ## go on if nothing is left
                 next
@@ -131,13 +130,13 @@ writeRariant <- function(x, file) {
 classifyEvent <- function(x, alpha = 0.05) {
 
     pval_null = binomTestPval(x$controlMismatch, x$controlDepth, 0, "greater")
-    pval_hetero = binomTestPval(x$controlMismatch, x$controlDepth, 0.5, "both")
+    pvalHetero = binomTestPval(x$controlMismatch, x$controlDepth, 0.5, "both")
     padj_null = p.adjust(pval_null, "BH")
-    padj_hetero = p.adjust(pval_hetero, "BH")
+    padjHetero = p.adjust(pvalHetero, "BH")
     
-    is_somatic = (padj_null >= alpha) & (padj_hetero < alpha)
-    is_hetero = (padj_hetero >= alpha) & (padj_null < alpha)
-    is_powerless = (padj_null >= alpha) & (padj_hetero >= alpha)
+    is_somatic = (padj_null >= alpha) & (padjHetero < alpha)
+    is_hetero = (padjHetero >= alpha) & (padj_null < alpha)
+    is_powerless = (padj_null >= alpha) & (padjHetero >= alpha)
           
     verdict = rep("undecided", length(pval_null))
     verdict[is_somatic] = "somatic"
@@ -145,9 +144,9 @@ classifyEvent <- function(x, alpha = 0.05) {
     verdict[is_powerless] = "powerless"
     verdict = factor(verdict, levels = c("somatic", "hetero", "undecided", "powerless"))
     
-    res = data.frame(event_type = verdict,
-        padj_somatic = padj_null, padj_hetero = padj_hetero,
-        pval_somatic = pval_null, pval_hetero = pval_hetero)
+    res = data.frame(eventType = verdict,
+        padjSomatic = padj_null, padjHetero = padjHetero,
+        pvalSomatic = pval_null, pvalHetero = pvalHetero)
     
     return(res)
 }

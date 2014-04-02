@@ -41,7 +41,7 @@ acCi <- function(x1, n1, x2, n2, conf_level = 0.95, clip = TRUE, split = FALSE) 
         cil[idx0] = ciu[idx0] = NaN
     }
 
-    res = data.frame(d = dhat, ds = dt, p1 = p1hat, p2 = p2hat, lower = cil, upper = ciu)
+    res = data.frame(p1 = p1hat, p2 = p2hat, d = dhat, ds = dt, lower = cil, upper = ciu)
   
     return(res)
 }
@@ -67,7 +67,7 @@ nhsCi <- function(x1, n1, x2, n2, conf_level = 0.95) {
     cil = estimate - quant * sqrt((lX * (1 - lX)/m) + (uY * (1 - uY)/n))
     ciu = estimate + quant * sqrt((uX * (1 - uX)/m) + (lY * (1 - lY)/n))
 
-    res = data.frame(d = estimate, p1 = pX, p2 = pY, lower = cil, upper = ciu)
+    res = data.frame(p1 = pX, p2 = pY, d = estimate, lower = cil, upper = ciu)
     
     return(res)
 }

@@ -17,7 +17,7 @@ plotConfidenceIntervals <- function (x, ylim = c(-1.05, 1.05), color = NULL, ...
         p = ggplot(x) + geom_pointrange(aes_string(x = "start", y = "d", ymin = "lower", ymax = "upper", color = color), ...)
     }
 
-    p = p + geom_hline(aes_string(yintercept = "h"), data = dfh, color = "darkgray", linetype = "dashed") + theme_bw() + coord_cartesian(ylim = ylim) + xlab("Genomic position") + ylab("Somatic Variant Frequency")
+    p = p + geom_hline(aes_string(yintercept = "h"), data = dfh, color = "darkgray", linetype = "dashed") + theme_bw() + coord_cartesian(ylim = ylim) + xlab("Genomic position") + ylab("Variant Rates Difference")
         
     return(p)
 }
@@ -43,7 +43,7 @@ plotAbundanceShift <- function (x, ylim = c(-0.05, 1.05), ...) {
         if ( is.null(x$start) )
             x$start = 1:nrow(x)
         
-        p = ggplot(x) + geom_linerange(aes_string(x = "start", ymin = "bottom", ymax = "top", color = "shift"), ...)
+        p = ggplot(x) + geom_linerange(aes_string(x = "start", ymin = "bottom", ymax = "top", color = "shift"), ...) + geom_point(aes_string(x = "start", y = "p1"), ...) + geom_point(aes_string(x = "start", y = "p2"), ...)
     }
     
     p = p + geom_hline(aes_string(yintercept = "h"), data = dfh, color = "darkgray", linetype = "dashed") + theme_bw() + coord_cartesian(ylim = ylim) + xlab("Genomic position") + ylab("Non-consensus rates")

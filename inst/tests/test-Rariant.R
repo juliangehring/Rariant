@@ -94,7 +94,7 @@ context("plots")
 test_that("'plotConfidenceIntervals' works", {
 
     p = plotConfidenceIntervals(vars)
-    p_col = plotConfidenceIntervals(vars, color = "event_type")
+    p_col = plotConfidenceIntervals(vars, color = "eventType")
 
     expect_is(p, "GGbio")
     expect_is(p_col, "GGbio")
