@@ -1,6 +1,6 @@
 import(GenomicRanges)
 import(shiny)
-importFrom(IRanges, IRanges, mcols, elementLengths, trim)
+importFrom(IRanges, IRanges, mcols, elementLengths, trim, metadata, "metadata<-")
 importFrom(Rsamtools, BamFile, getSeq)
 importFrom(ggplot2, ggplot, geom_pointrange, geom_linerange, aes, aes_string, geom_point, geom_hline, geom_vline, theme_bw, xlim, ylim, xlab, ylab, coord_cartesian, scale_y_log10)
 importFrom(ggbio, autoplot)

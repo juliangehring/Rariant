@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>Comparative Identification and Assessment of Single Nucleotide Variants Through Shifts in Base Call Frequencies</title>
-<!-- 2014-04-02 Wed 11:02 -->
+<!-- 2014-04-03 Thu 11:33 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Julian Gehring, Simon Anders, Bernd Klaus (EMBL Heidelberg)" />
@@ -957,8 +957,8 @@ v_mix = rariant(mix_bam, control_bam, tp53_region, select = FALSE)
 end.rcode-->
 
 <p>
-In the following, we will look at positions which showed an significant effect
-in at least one sample.
+In the following, we look at positions which showed an significant effect in at
+least one sample.  This gives us 12 positions to consider in the following.
 </p>
 
 <!--begin.rcode 
@@ -977,6 +977,13 @@ v_poi3 = v_mix[v_mix %in% poi]
 end.rcode-->
 
 
+<p>
+To get a better understanding about the evidence for the presence or absence of
+particular variants acros samples, we plot the confidence intervals, colored
+according to the predicted event type, and abundance shifts for all sites of
+interest, colored according to the sign of the shift.
+</p>
+
 <!--begin.rcode fig.width=14, fig.height=7, fig.cap='Confidence intervals for simulition study'
 py1 = plotConfidenceIntervals(v_poi1, color = "eventType")
 py2 = plotConfidenceIntervals(v_poi2, color = "eventType")
@@ -987,27 +994,31 @@ t = tracks(py1, py2, py3)
 print(t)
 end.rcode-->
 
+<p>
+While most of the variants are somatic, i.e. they do not appear in the control
+sample, the last variant position shows a loss of a heterozygous SNP.  Looking
+for example in more detail into the group of 5 variant sites around 7.85 Mbp: We
+can identify them as consistent with a heterozygous somatic variant in the first
+sample, since their 95% CIs overlap the value of 0.5.  In contrast, we can show
+the absence of the same variants in the second sample.  The third sample again
+shows the presence of the variants, as seen in the first case, but with lower
+abundance.  Such a result could be expected in a mixture of subclones, in which
+some clones carry a somatic variant and others not.  Further, we can also see
+the case of the next variant which consistently exists in all three samples with
+the same abundance.
+</p>
 
 <!--begin.rcode fig.width=14, fig.height=7, fig.cap='Abundance shifts for simulition study'
 pa1 = plotAbundanceShift(v_poi1)
-pa2 = plotAbundanceShift(v_test2)
-pa3 = plotAbundanceShift(v_mix)
+pa2 = plotAbundanceShift(v_poi2)
+pa3 = plotAbundanceShift(v_poi3)
 
 t2 = tracks(pa1, pa2, pa3)
 
 print(t2)
 end.rcode-->
-
-
-<!--begin.rcode 
-selectCalls <- function(x, called = TRUE, padj, pval, value) {
-    res = x[x$called %in% called]
-    return(res)
-}
-end.rcode-->
 </div>
 </div>
-
 <div id="outline-container-sec-4-2" class="outline-3">
 <h3 id="sec-4-2"><span class="section-number-3">4.2</span> AML Genome Sequencing</h3>
 <div class="outline-text-3" id="text-4-2">

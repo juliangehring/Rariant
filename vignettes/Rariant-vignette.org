@@ -531,8 +531,8 @@ by combining their reads.
   v_mix = rariant(mix_bam, control_bam, tp53_region, select = FALSE)
 #+END_SRC
 
-In the following, we will look at positions which showed an significant effect
-in at least one sample.
+In the following, we look at positions which showed an significant effect in at
+least one sample.  This gives us 12 positions to consider in the following.
 
 #+BEGIN_SRC R
   poi = unique(c(v_test1[ciOutside(v_test1)], v_test2[ciOutside(v_test2)], v_mix[ciOutside(v_mix)]))
@@ -550,6 +550,11 @@ in at least one sample.
 #+END_SRC
 
 
+To get a better understanding about the evidence for the presence or absence of
+particular variants acros samples, we plot the confidence intervals, colored
+according to the predicted event type, and abundance shifts for all sites of
+interest, colored according to the sign of the shift.
+
 #+BEGIN_SRC R :exports both :results output graphics :file platinum-ci-tracks.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Confidence intervals for simulition study'
   py1 = plotConfidenceIntervals(v_poi1, color = "eventType")
   py2 = plotConfidenceIntervals(v_poi2, color = "eventType")
@@ -560,19 +565,67 @@ in at least one sample.
   print(t)
 #+END_SRC
 
+While most of the variants are somatic, i.e. they do not appear in the control
+sample, the last variant position shows a loss of a heterozygous SNP.  Looking
+for example in more detail into the group of 5 variant sites around 7.85 Mbp: We
+can identify them as consistent with a heterozygous somatic variant in the first
+sample, since their 95% CIs overlap the value of 0.5.  In contrast, we can show
+the absence of the same variants in the second sample.  The third sample again
+shows the presence of the variants, as seen in the first case, but with lower
+abundance.  Such a result could be expected in a mixture of subclones, in which
+some clones carry a somatic variant and others not.  Further, we can also see
+the case of the next variant which consistently exists in all three samples with
+the same abundance.
 
 #+BEGIN_SRC R :exports both :results output graphics :file platinum-shift-tracks.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Abundance shifts for simulition study'
   pa1 = plotAbundanceShift(v_poi1)
-  pa2 = plotAbundanceShift(v_test2)
-  pa3 = plotAbundanceShift(v_mix)
+  pa2 = plotAbundanceShift(v_poi2)
+  pa3 = plotAbundanceShift(v_poi3)
 
   t2 = tracks(pa1, pa2, pa3)
 
   print(t2)
 #+END_SRC
 
+#+BEGIN_SRC R :exports none
+  x = v_poi1
+  y = v_poi2
+  z = v_poi3
 
-#+BEGIN_SRC R
+  multiCompare <- function(..., height = 0.9, width = 0.95, size = 1.5, fill = "d") {
+      l = list(...)
+      browser()
+      if(is.null(names(l))) {
+          n = as.character(seq_along(l))
+      } else {
+          n = names(l)
+      }
+      f <- function(x) {
+          x1 = as(x, "data.frame")
+          x1$n = n
+          x1$outside = ciOutside(x1)
+          return(x1)
+      }
+      browser()
+      lx = lapply(l, f)
+      z = do.call(rbind, lx)
+      z$sample = factor(rep(n, elementLengths(l)))
+      g = ggplot(z) + geom_tile(aes_string(x = "sample", y = "n", fill = fill, color = "outside"), size = size, height = height, width = width) + theme_bw() + scale_fill_gradient2(limits = c(-1, 1)) + xlab("Sample") + ylab("Variant")
+      return(g)
+  }
+
+  foo <- function(...) {
+      l = list(...)
+      return(l)
+  }
+
+  multiCompare(a = x, b = y, c = z)
+
+  multiCompare(x, y, z, fill = "lower")
+#+END_SRC
+
+
+#+BEGIN_SRC R :exports none
   selectCalls <- function(x, called = TRUE, padj, pval, value) {
       res = x[x$called %in% called]
       return(res)
