@@ -53,6 +53,10 @@ paste('<p class="caption">',options$fig.cap,"</p>",sep="")
 end.rcode-->
 #+END_HTML
 
+#+BEGIN_HTML
+<p class="author-top">Julian Gehring, Simon Anders, Bernd Klaus (EMBL Heidelberg)</p>
+#+END_HTML
+
 
 * Motivation
 
@@ -393,7 +397,7 @@ evidence for the presence or absence of a variant:
                 Exact test
 - called :: Was the site called as a variant?
 - eventType :: Type of variant event: 'somatic', 'loh', 'undecided'.
-- padjSomatic, padjHetero, pvalSomatic, pvalHetero :: Raw and
+- pvalSomatic, padjSomatic, pvalHetero, padjHetero :: Raw and
      Benjamini-Hochberg adjusted p-values of the binomial tests for the
      respective event types
 
@@ -1423,6 +1427,34 @@ calling on a computing cluster.
 #+END_SRC
 
 
+
+
+* Frequently Asked Questions
+
+** Getting help
+
+We welcome emails with questions or suggestions about our software, and want to
+ensure that we eliminate issues if and when they appear.  We have a few requests
+to optimize the process:
+
+-  All emails and follow-up questions should take place over the [[http://bioconductor.org/help/mailing-list/][Bioconductor
+   mailing list]], which serves as a repository of information.
+
+- The subject line should contain /Rariant/ and a few words describing the
+  problem.  First search the [[http://bioconductor.org/help/mailing-list/][Bioconductor mailing list]], for past threads which might
+  have answered your question.
+
+- If you have a question about the behavior of a function, read the sections of
+  the manual page for this function by typing a question mark and the function
+  name, e.g. =?rariant=.  Additionally, read through the vignette to understand
+  the interplay between different functions of the package.  We spend a lot of
+  time documenting individual functions and the exact steps that the software is
+  performing.
+
+- Include all of your R code related to the question you are asking.
+  
+- Include complete warning or error messages, and conclude your message with the
+  full output of =sessionInfo()=.
 
 
 * References
