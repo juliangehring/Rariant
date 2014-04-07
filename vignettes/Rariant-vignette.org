@@ -284,7 +284,7 @@ frequencies between two samples at each genomic position individually:
 
 1. Form the base counts table for four bases A, C, G, T from the aligned
    reads.  In order to reduce the number of false counts, we can optionally
-   exclude reads with low mapping quality and clip the head of each read.
+   exclude reads with low base calling quality and clip the head of each read.
 
 2. Determine the consensus sequence: In a comparative setting, we will use the
    most abundant base call.

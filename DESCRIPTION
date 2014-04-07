@@ -1,7 +1,7 @@
 Package: Rariant
 Type: Package
 Title: Identification and Assessment of Single Nucleotide Variants through Shifts in Non-Consensus Base Call Frequencies
-Version: 0.99.25
+Version: 0.99.26
 Date: 2014-04-07
 Author: Julian Gehring, Simon Anders, Bernd Klaus (EMBL Heidelberg)
 Maintainer: Julian Gehring <julian.gehring@embl.de>

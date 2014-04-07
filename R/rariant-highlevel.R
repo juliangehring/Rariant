@@ -1,4 +1,4 @@
-rariant <- function(test, control, region, beta = 0.95, alpha = 1 - beta, select = TRUE, consensus, resultFile, strand = c("both", "plus", "minus"), nCycles = 10, minMapQual = 20, block = 1e4, value = TRUE, criteria = c("both", "any", "fet", "ci")) {
+rariant <- function(test, control, region, beta = 0.95, alpha = 1 - beta, select = TRUE, consensus, resultFile, strand = c("both", "plus", "minus"), nCycles = 10, minQual = 20, block = 1e4, value = TRUE, criteria = c("both", "any", "fet", "ci")) {
 
     ## input arguments
     args = as.list(match.call())[-1] ## ignore the function name
@@ -30,8 +30,8 @@ rariant <- function(test, control, region, beta = 0.95, alpha = 1 - beta, select
         roi = chunks[i]
         n = width(roi)
 
-        test_tally = tallyBamRegion(test, roi, nCycles, minMapQual)
-        control_tally = tallyBamRegion(control, roi, nCycles, minMapQual)
+        test_tally = tallyBamRegion(test, roi, nCycles, minQual)
+        control_tally = tallyBamRegion(control, roi, nCycles, minQual)
         
         dx = comparativeMismatch(test_tally, control_tally, strand, consensus, roi)
 

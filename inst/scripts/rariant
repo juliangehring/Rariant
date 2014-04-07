@@ -18,10 +18,10 @@ option_list = list(
                 type = "character",
                 help = "Region to analyze"),
 
-    make_option(c("-q", "--mapq"),
+    make_option(c("-q", "--qual"),
                 type = "integer",
                 default = 5,
-                help = "Minimum mapping quality"),
+                help = "Minimum base quality"),
     
     make_option(c("-n", "--ncycles"),
                 type = "integer",
@@ -65,4 +65,4 @@ if("region" %in% names(args)) {
     roi = si
 }
 
-dummy = with(args, rariant(test = test, control = control, region = roi, beta = beta, alpha = alpha, strand = strand, nCycles = ncycles, minMapQual = mapq, block = blocksize, resultFile = output, value = FALSE))
+dummy = with(args, rariant(test = test, control = control, region = roi, beta = beta, alpha = alpha, strand = strand, nCycles = ncycles, minQual = qual, block = blocksize, resultFile = output, value = FALSE))

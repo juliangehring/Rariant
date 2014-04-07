@@ -20,7 +20,7 @@
   
   rariant(test, control, region, beta = 0.95, alpha = 1 - beta,
   select = TRUE, consensus, resultFile, strand = c("both", "plus", "minus"),
-  nCycles = 10, minMapQual = 20, block = 1e4, value = TRUE, criteria = c("both", "any", "fet", "ci"))
+  nCycles = 10, minQual = 20, block = 1e4, value = TRUE, criteria = c("both", "any", "fet", "ci"))
 
   rariantStandalone()
   
@@ -65,7 +65,7 @@
     table. This avoids low quality read positions [default: 10 is
     reasonable for current Illumina sequencing].}
   
-  \item{minMapQual}{Minimum mapping quality for reads to be considered
+  \item{minQual}{Minimum base call quality for reads to be considered
     for the nucleotide count table [default: 20 is reasonable for
     current Illumina sequencing].  Reads with a lower quality are
     dropped.}
