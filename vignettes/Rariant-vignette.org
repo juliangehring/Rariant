@@ -1457,6 +1457,21 @@ to optimize the process:
   full output of =sessionInfo()=.
 
 
+
+** Installing the package
+
+Before you want to install the =Rariant= package, please ensure that
+you have the latest version of =R= and =Bioconductor= installed.  For details on
+this, please have a look at the help packages for [[http://cran.r-project.org/][R]] and [[http://bioconductor.org/install/][Bioconductor]].  Then you
+can open =R= and run the following commands which will install the latest
+release version of =Rariant=:
+
+#+BEGIN_SRC R :eval no :ravel eval=FALSE
+  source("http://bioconductor.org/biocLite.R")
+  biocLite("Rariant")
+#+END_SRC
+
+
 * References
 
 #+BIBLIOGRAPHY: references unsrt limit:t option:-d option:-nobibsource option:-noabstract option:-nokeywords

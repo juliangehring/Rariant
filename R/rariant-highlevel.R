@@ -48,10 +48,10 @@ rariant <- function(test, control, region, beta = 0.95, alpha = 1 - beta, select
         }
                         
         ## statistics
-        pval = with(dx, feTest(testMismatch, testDepth, controlMismatch, controlDepth))
+        pval = feTest(dx$testMismatch, dx$testDepth, dx$controlMismatch, dx$controlDepth)
         padj = p.adjust(pval, method = "BH")
         
-        ci = with(dx, acCi(testMismatch, testDepth, controlMismatch, controlDepth, beta))
+        ci = acCi(dx$testMismatch, dx$testDepth, dx$controlMismatch, dx$controlDepth, beta)
 
         stat = data.frame(pval = pval, padj = padj)
 
@@ -155,10 +155,10 @@ classifyEvent <- function(x, alpha = 0.05) {
 reevalSites <- function(dx, beta = 0.95, alpha = 1 - beta, criteria = c("both", "any", "fet", "ci")) {
 
     ## statistics
-    pval = with(dx, feTest(testMismatch, testDepth, controlMismatch, controlDepth))
+    pval = feTest(dx$testMismatch, dx$testDepth, dx$controlMismatch, dx$controlDepth)
     padj = p.adjust(pval, method = "BH")
           
-    ci = with(dx, acCi(testMismatch, testDepth, controlMismatch, controlDepth, beta))
+    ci = acCi(dx$testMismatch, dx$testDepth, dx$controlMismatch, dx$controlDepth, beta)
   
     stat = data.frame(pval = pval, padj = padj)
     
