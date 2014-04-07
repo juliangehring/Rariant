@@ -87,14 +87,17 @@ rariant <- function(test, control, region, beta = 0.95, alpha = 1 - beta, select
         
         if(value) {
             val[[i]] = res
-        }        
+        }     
     }
 
     res = NULL
     if(value) {
-        res = df2gr(do.call(rbind, val))
-        seqinfo(res) = seq_info_test[unique(as.character(seqnames(region)))]
-        metadata(res) = args
+        res = do.call(rbind, val)
+        if(!is.null(res)) {
+            res = df2gr(res)
+            seqinfo(res) = seq_info_test[unique(as.character(seqnames(region)))]
+            metadata(res) = args
+        }
     }
     
     return(res)
