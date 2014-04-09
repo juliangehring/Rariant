@@ -23,7 +23,7 @@ plotConfidenceIntervals <- function (x, ylim = c(-1.05, 1.05), color = NULL, ...
 }
 
 
-plotAbundanceShift <- function (x, ylim = c(-0.05, 1.05), ...) {
+plotAbundanceShift <- function (x, ylim = c(-0.05, 1.05), rates = TRUE, ...) {
 
     dfh = data.frame(h = 0:1)
   
@@ -42,9 +42,12 @@ plotAbundanceShift <- function (x, ylim = c(-0.05, 1.05), ...) {
     if ( inherits(x, "data.frame") ) {
         if ( is.null(x$start) )
             x$start = 1:nrow(x)
-        
-        p = ggplot(x) + geom_linerange(aes_string(x = "start", ymin = "bottom", ymax = "top", color = "shift"), ...) + geom_point(aes_string(x = "start", y = "p1"), ...) + geom_point(aes_string(x = "start", y = "p2"), ...)
+  
+        p = ggplot(x) + geom_linerange(aes_string(x = "start", ymin = "bottom", ymax = "top", color = "shift"), ...)
     }
+
+    if(rates)
+        p = p + geom_point(aes_string(x = "start", y = "p1"), color = "violetred3", ...) + geom_point(aes_string(x = "start", y = "p2"), color = "steelblue2", ...)
     
     p = p + geom_hline(aes_string(yintercept = "h"), data = dfh, color = "darkgray", linetype = "dashed") + theme_bw() + coord_cartesian(ylim = ylim) + xlab("Genomic position") + ylab("Non-consensus rates")
     

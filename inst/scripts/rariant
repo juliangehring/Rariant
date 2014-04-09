@@ -1,37 +1,23 @@
 #!/usr/bin/env Rscript-devel
-suppressWarnings(suppressMessages(library(Rariant)))
 suppressWarnings(suppressMessages(library(optparse)))
-suppressWarnings(suppressMessages(library(GenomicRanges)))
-suppressWarnings(suppressMessages(library(Rsamtools)))
 
 # example from vignette
 option_list = list(
     make_option(c("-t", "--test"),
                 type = "character",
-                help = "Test BAM file"),
+                help = "Test BAM file [required]"),
 
     make_option(c("-c", "--control"),
                 type = "character",
-                help = "Control BAM file"),
+                help = "Control BAM file [required]"),
+
+    make_option(c("-o", "--output"),
+                type = "character",
+                help = "Output file [required]"),
 
     make_option(c("-r", "--region"),
                 type = "character",
                 help = "Region to analyze"),
-
-    make_option(c("-q", "--qual"),
-                type = "integer",
-                default = 5,
-                help = "Minimum base quality"),
-    
-    make_option(c("-n", "--ncycles"),
-                type = "integer",
-                default = 10,
-                help = "Number of cycles to clip"),
-
-    make_option(c("-k", "--blocksize"),
-                type = "integer",
-                default = 1e4,
-                help = "Block size"),
 
     make_option(c("-b", "--beta"),
                 type = "numeric",
@@ -41,12 +27,28 @@ option_list = list(
                 type = "numeric",
                 default = 0.05),
 
+    make_option(c("-z", "--select"),
+                type = "logical",
+                default = TRUE),
+
+    make_option(c("-q", "--qual"),
+                type = "integer",
+                default = 20,
+                help = "Minimum base call quality"),
+    
+    make_option(c("-n", "--ncycles"),
+                type = "integer",
+                default = 10,
+                help = "Number of cycles to clip"),
+
     make_option(c("-s", "--strand"),
                 type = "character",
                 default = "both"),
 
-    make_option(c("-o", "--output"),
-                type = "character")
+    make_option(c("-k", "--blocksize"),
+                type = "integer",
+                default = 1e4,
+                help = "Block size")
     )
 
 parser = OptionParser(usage = "%prog [options] file", option_list = option_list)
@@ -58,11 +60,21 @@ if(!all(required_args %in% names(args))) {
     stop(msg)
 }
 
+suppressWarnings(suppressMessages(library(Rariant)))
+suppressWarnings(suppressMessages(library(GenomicRanges)))
+suppressWarnings(suppressMessages(library(Rsamtools)))
+suppressWarnings(suppressMessages(library(rtracklayer)))
+
 if("region" %in% names(args)) {
-    roi = pos2gr(args$region)
+    if(file.exists(args$region)) {
+        ## it is a file
+        roi = unstrand(import.bed(args$region))
+    } else {
+        roi = pos2gr(args$region)
+    }
 }  else {
     si = as(seqinfo(BamFile(args$test)), "GRanges")
     roi = si
 }
 
-dummy = with(args, rariant(test = test, control = control, region = roi, beta = beta, alpha = alpha, strand = strand, nCycles = ncycles, minQual = qual, block = blocksize, resultFile = output, value = FALSE))
+dummy = with(args, rariant(test = test, control = control, region = roi, beta = beta, alpha = alpha, strand = strand, nCycles = ncycles, minQual = qual, block = blocksize, resultFile = output, select = select, value = FALSE))

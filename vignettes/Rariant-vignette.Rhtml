@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>Comparative Identification and Assessment of Single Nucleotide Variants Through Shifts in Base Call Frequencies</title>
-<!-- 2014-04-08 Tue 11:30 -->
+<!-- 2014-04-09 Wed 16:33 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Julian Gehring, Simon Anders, Bernd Klaus (EMBL Heidelberg)" />
@@ -850,7 +850,7 @@ relation to the estimates \(p^{T}_{i}\) and \(p^{C}_{i}\), also indicating the g
 of the variant allele in the tumor.
 </p>
 
-<!--begin.rcode fig.width=14, fig.height=7, fig.cap='NRAS: Variant frequency confidence intervals and shifts'
+<!--begin.rcode fig.width=14, fig.height=7, fig.cap='NRAS: Variant frequency confidence intervals and shifts. Red and blue points show the non-consensus rates in the test and control sample.  The difference between the two represents the effect size.'
 win = 20
 ind_var = (ind_out[1]-win):(ind_out[1]+win)
 
@@ -952,9 +952,9 @@ end.rcode-->
 
 
 <!--begin.rcode 
+control_bam = system.file("extdata", "control.bam", package = "Rariant", mustWork = TRUE)
 test1_bam = system.file("extdata", "test.bam", package = "Rariant", mustWork = TRUE)
 test2_bam = system.file("extdata", "test2.bam", package = "Rariant", mustWork = TRUE)
-control_bam = system.file("extdata", "control.bam", package = "Rariant", mustWork = TRUE)
 mix_bam = system.file("extdata", "mix.bam", package = "Rariant", mustWork = TRUE)
 end.rcode-->
 
