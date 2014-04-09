@@ -15,7 +15,7 @@ rariant <- function(test, control, region, beta = 0.95, alpha = 1 - beta, select
     seq_info_test = seqinfo(BamFile(test))
     seq_info_control = seqinfo(BamFile(control))
     if(!identical(seq_info_test, seq_info_control))
-        warning("The BAM header of 'test' and 'control' differ!")
+        warning("The BAM headers of 'test' and 'control' differ!")
 
     suppressWarnings(seqinfo(region) <- seq_info_control[seqlevels(region)])
     region = trim(region)
@@ -94,8 +94,8 @@ rariant <- function(test, control, region, beta = 0.95, alpha = 1 - beta, select
     if(value) {
         res = do.call(rbind, val)
         if(!is.null(res)) {
-            res = df2gr(res)
-            seqinfo(res) = seq_info_test[unique(as.character(seqnames(region)))]
+            res = df2gr(res)       
+            seqinfo(res) = seq_info_test[seqlevels(res)]
             metadata(res) = args
         }
     }
@@ -130,7 +130,7 @@ writeRariant <- function(x, file) {
 
 
 ## detect LOH and somatic events ##
-classifyEvent <- function(x, alpha = 0.05) {
+classifyEvent <- function(x, alpha = 0.1) {
 
     pval_null = binomTestPval(x$controlMismatch, x$controlDepth, 0, "greater")
     pvalHetero = binomTestPval(x$controlMismatch, x$controlDepth, 0.5, "both")

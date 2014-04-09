@@ -17,7 +17,7 @@
 \usage{
 plotConfidenceIntervals(x, ylim = c(-1.05, 1.05), color = NULL, ...)
 
-plotAbundanceShift(x, ylim = c(-0.05, 1.05), ...)
+plotAbundanceShift(x, ylim = c(-0.05, 1.05), rates = TRUE, ...)
 }
 
 \arguments{
@@ -31,6 +31,10 @@ plotAbundanceShift(x, ylim = c(-0.05, 1.05), ...)
 
   \item{color}{Variable that determines the coloring of the confidence
     axis (character).}
+
+  \item{rates}{Should the non-consensus rates of both samples be
+    visualized as colored end points of the line range? (logical, default:
+    TRUE).}
 
   \item{...}{Additional plotting arguments that are passed on to
     ggplot2::geom_pointrange.}
