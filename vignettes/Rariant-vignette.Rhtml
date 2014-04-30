@@ -4,151 +4,27 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>Comparative Identification and Assessment of Single Nucleotide Variants Through Shifts in Base Call Frequencies</title>
-<!-- 2014-04-09 Wed 16:33 -->
+<!-- 2014-04-30 Mi 23:16 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Julian Gehring, Simon Anders, Bernd Klaus (EMBL Heidelberg)" />
-<style type="text/css">
- <!--/*--><![CDATA[/*><!--*/
-  .title  { text-align: center; }
-  .todo   { font-family: monospace; color: red; }
-  .done   { color: green; }
-  .tag    { background-color: #eee; font-family: monospace;
-            padding: 2px; font-size: 80%; font-weight: normal; }
-  .timestamp { color: #bebebe; }
-  .timestamp-kwd { color: #5f9ea0; }
-  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
-  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
-  .center { margin-left: auto; margin-right: auto; text-align: center; }
-  .underline { text-decoration: underline; }
-  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
-  p.verse { margin-left: 3%; }
-  pre {
-    border: 1px solid #ccc;
-    box-shadow: 3px 3px 3px #eee;
-    padding: 8pt;
-    font-family: monospace;
-    overflow: auto;
-    margin: 1.2em;
-  }
-  pre.src {
-    position: relative;
-    overflow: visible;
-    padding-top: 1.2em;
-  }
-  pre.src:before {
-    display: none;
-    position: absolute;
-    background-color: white;
-    top: -10px;
-    right: 10px;
-    padding: 3px;
-    border: 1px solid black;
-  }
-  pre.src:hover:before { display: inline;}
-  pre.src-sh:before    { content: 'sh'; }
-  pre.src-bash:before  { content: 'sh'; }
-  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
-  pre.src-R:before     { content: 'R'; }
-  pre.src-perl:before  { content: 'Perl'; }
-  pre.src-java:before  { content: 'Java'; }
-  pre.src-sql:before   { content: 'SQL'; }
-
-  table { border-collapse:collapse; }
-  caption.t-above { caption-side: top; }
-  caption.t-bottom { caption-side: bottom; }
-  td, th { vertical-align:top;  }
-  th.right  { text-align: center;  }
-  th.left   { text-align: center;   }
-  th.center { text-align: center; }
-  td.right  { text-align: right;  }
-  td.left   { text-align: left;   }
-  td.center { text-align: center; }
-  dt { font-weight: bold; }
-  .footpara:nth-child(2) { display: inline; }
-  .footpara { display: block; }
-  .footdef  { margin-bottom: 1em; }
-  .figure { padding: 1em; }
-  .figure p { text-align: center; }
-  .inlinetask {
-    padding: 10px;
-    border: 2px solid gray;
-    margin: 10px;
-    background: #ffffcc;
-  }
-  #org-div-home-and-up
-   { text-align: right; font-size: 70%; white-space: nowrap; }
-  textarea { overflow-x: auto; }
-  .linenr { font-size: smaller }
-  .code-highlighted { background-color: #ffff00; }
-  .org-info-js_info-navigation { border-style: none; }
-  #org-info-js_console-label
-    { font-size: 10px; font-weight: bold; white-space: nowrap; }
-  .org-info-js_search-highlight
-    { background-color: #ffff00; color: #000000; font-weight: bold; }
-  /*]]>*/-->
-</style>
-<link rel="stylesheet" type="text/css" href="bioc.css" />
-<link rel="stylesheet" type="text/css" href="http://www.ebi.ac.uk/~jgehring/css/bioc.css" />
 
 <script type="text/javascript" src="http://orgmode.org/org-info.js">
 /**
- *
  * @source: http://orgmode.org/org-info.js
- *
  * @licstart  The following is the entire license notice for the
  *  JavaScript code in http://orgmode.org/org-info.js.
- *
- * Copyright (C) 2012-2013 Free Software Foundation, Inc.
- *
- *
- * The JavaScript code in this tag is free software: you can
- * redistribute it and/or modify it under the terms of the GNU
- * General Public License (GNU GPL) as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option)
- * any later version.  The code is distributed WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
- *
- * As additional permission under GNU GPL version 3 section 7, you
- * may distribute non-source (e.g., minimized or compacted) forms of
- * that code without the copy of the GNU GPL normally required by
- * section 4, provided you include this license notice and a URL
- * through which recipients can access the Corresponding Source.
- *
  * @licend  The above is the entire license notice
  * for the JavaScript code in http://orgmode.org/org-info.js.
- *
  */
 </script>
-
 <script type="text/javascript">
-
 /*
 @licstart  The following is the entire license notice for the
 JavaScript code in this tag.
-
-Copyright (C) 2012-2013 Free Software Foundation, Inc.
-
-The JavaScript code in this tag is free software: you can
-redistribute it and/or modify it under the terms of the GNU
-General Public License (GNU GPL) as published by the Free Software
-Foundation, either version 3 of the License, or (at your option)
-any later version.  The code is distributed WITHOUT ANY WARRANTY;
-without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
-
-As additional permission under GNU GPL version 3 section 7, you
-may distribute non-source (e.g., minimized or compacted) forms of
-that code without the copy of the GNU GPL normally required by
-section 4, provided you include this license notice and a URL
-through which recipients can access the Corresponding Source.
-
-
 @licend  The above is the entire license notice
 for the JavaScript code in this tag.
 */
-
 <!--/*--><![CDATA[/*><!--*/
 org_html_manager.set("TOC_DEPTH", "4");
 org_html_manager.set("LINK_HOME", "");
@@ -315,28 +191,35 @@ for the JavaScript code in this tag.
 </div>
 <!--
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Rariant - HTML}
+%\VignetteIndexEntry{Rariant}
 %\VignettePackage{Rariant}
 -->
 
 <!--begin.rcode results='hide', echo=FALSE, message=FALSE, warning=FALSE
 set.seed(1)
-options(width = 120)
-library(knitr)
-opts_chunk$set(comment = "  ", fig.path = "", fig.align = "center", out.width = "90%", indent = 10, cache = FALSE, cache.path = "../cache")
-## out.width = "1\\columnwidth"
-## uncomment options for HTML output, one of them breaks the image export
-## background = "#FFFFFF", dev = 'pdf'
-end.rcode-->
 
-<!--begin.rcode setup, results='hide', echo=FALSE, message=FALSE, warning=FALSE
+options(width = 70)
+
 library(knitr)
-# to base64 encode images
-opts_knit$set(upload.fun = image_uri)
+
+style = paste(readLines("bioc.css"), collapse = "\n")
+
+opts_knit$set(self.contained = TRUE,
+              upload.fun = image_uri,
+              header = c(highlight = style))
+
+opts_chunk$set(comment = "  ",
+               fig.path = "",
+               fig.align = "center",
+               out.width = "90%",
+               indent = 10,
+               cache = FALSE,
+               cache.path = "../cache")
+
 knit_hooks$set(fig.cap = function(before, options, envir) {
-if(!before) {
-paste('<p class="caption">',options$fig.cap,"</p>",sep="")
-}
+    if(!before) {
+        paste('<p class="caption">',options$fig.cap,"</p>",sep="")
+    }
 })
 end.rcode-->
 
@@ -357,7 +240,7 @@ the aim is to identify single nucloetide variants (SNVs) which show significant
 changes between the two.  Typically, this is applied for comparing
 a tumor sample against a matched normal/constitutive sample of the same patient,
 focusing on alterations that may have occurred in the transition to the
-cancerous tissue, and therefore often termed <i>somatic</i> variants.  However, a
+cancerous tissue, and therefore are often termed <i>somatic</i> variants.  However, a
 broader range of questions can be addressed by extending the focus to include
 genomic changes of temporally or spatially separated samples to each other, to
 investigate tumor evolution and subclonal shifts [<a href="#yates_evolution_2012">11</a>].
@@ -374,7 +257,7 @@ of a tumor haboring multiple subclones, variants may be present in both stages
 with changing abundances.  Here, the classical definition of a <i>somatic</i> variant
 would result in missing the event.  In the following, we will therefore focus on
 estimating the shift in variant allele frequencies between a test and a control
-samples.  The classical somatic definition requiring the variant to be absent in the
+sample.  The classical somatic definition requiring the variant to be absent in the
 control constitutes a special case of this.
 </p>
 
@@ -385,7 +268,7 @@ motivated by scientific questions in the field of cancer genomics
 do not allow an explicit statement about the evidence for the absence of a
 putative variant in a sample, and a clear distinction is needed whether a <i>negative</i> call
 results from a true negative site or the lack of statistical power to detect it.
-As an example, image a variant calling approach using a hypothesis test with the
+As an example, imagine a variant calling approach using a hypothesis test with the
 null hypothesis that the variant frequencies at a locus are identical for both
 samples.  While a significant p-value provides evidence for the presence of a
 variant, inverting this argument does not work: A non-significant p-value can
@@ -410,6 +293,7 @@ the presence or absence in comparisons between matched samples.
 </p>
 </div>
 </div>
+
 
 <div id="outline-container-sec-2" class="outline-2">
 <h2 id="sec-2"><span class="section-number-2">2</span> Methodology</h2>
@@ -466,6 +350,7 @@ frequency.  Thus, positions not haboring biological alterations will result in
 </div>
 </div>
 
+
 <div id="outline-container-sec-2-2" class="outline-3">
 <h3 id="sec-2-2"><span class="section-number-3">2.2</span> Confidence intervals</h3>
 <div class="outline-text-3" id="text-2-2">
@@ -485,8 +370,8 @@ follow binomial distributions with parameters \(p^{S}_{i}\) and \(N^{S}_{i}\),
 several methods have been established for estimating confidence intervals for
 the difference of two rate parameters [<a href="#fleiss_statistical_2013">13</a>]
 [<a href="#fagerland_recommended_2011">7</a>].  The performance of an approach is generally
-described in term of their coverage probabilities indicating the probability of
-a confidence interval to cover the true value (see <a href="#sec-5-3">5.3</a>).  Coverage probabilities greater and less than the
+described in terms of its coverage probability indicating the probability of a
+confidence interval to cover the true value (see <a href="#sec-5-3">5.3</a>).  Coverage probabilities greater and less than the
 confidence level \(\beta\) describe conservative and liberal behaviors,
 respectively. Due to the conservative coverage probabilities and high
 computational effort of exact confidence interval estimates, approximate methods
@@ -543,7 +428,7 @@ little statistical power, as due to low sequencing depths.
 </p>
 
 <p>
-For the case that we compare a tumor to a matched normal sample, we shows a set
+For the case that we compare a tumor to a matched normal sample, we show a set
 of hypothetical cases that can be distinguished by regarding the point estimate
 and its confidence interval:
 </p>
@@ -586,17 +471,18 @@ end.rcode-->
 </div>
 </div>
 
+
 <div id="outline-container-sec-2-3" class="outline-3">
 <h3 id="sec-2-3"><span class="section-number-3">2.3</span> Distinguishing event classes</h3>
 <div class="outline-text-3" id="text-2-3">
 <p>
-Focusing on the comparative shift of non-consensus frequencies can detect and
+Focusing on the comparative shift of non-consensus frequencies allows us to detect and
 distinguish different types of events.  Since <code>Rariant</code> does not make explicit
 assumptions about the abundance of a potential variant in the control sample, we
 are further able to find clonal shifts, for example between different tumor
 samples, or losses of heterozygocity. Generally, gains and losses of variant
 alleles are characterized by positive and negative values of \(d\), respectively.
-For a differentiated interpretation of the results, we classify a variants into
+For a differentiated interpretation of the results, we classify a variant into
 one of four classes:
 </p>
 
@@ -630,6 +516,7 @@ alternative hypothesis \(H_{1}: p^{C} \neq \frac{1}{2}\).
 </div>
 </div>
 
+
 <div id="outline-container-sec-2-4" class="outline-3">
 <h3 id="sec-2-4"><span class="section-number-3">2.4</span> Identifying variant sites in large datasets</h3>
 <div class="outline-text-3" id="text-2-4">
@@ -659,7 +546,7 @@ derived statistics for both samples, based on the consensus sequence (see
 of mismatching and total bases between the samples: \({K^{T}_{i}, N^{T}_{i},
    K^{C}_{i}, N^{C}_{i}}\).  The p-values are corrected for multiple testing
 according to the Benjamini-Hochberg procedure.  Only positions rejecting the
-null hypothesis at a significance level \(\alpha\) are furtheron considered as
+null hypothesis at a significance level \(\alpha\) are further on considered as
 potential variants.
 </li>
 
@@ -674,6 +561,7 @@ powerless (see <a href="#sec-2-3">2.3</a>).
 </div>
 </div>
 </div>
+
 
 <div id="outline-container-sec-3" class="outline-2">
 <h2 id="sec-3"><span class="section-number-2">3</span> Workflow</h2>
@@ -722,6 +610,7 @@ end.rcode-->
 </div>
 </div>
 
+
 <div id="outline-container-sec-3-2" class="outline-3">
 <h3 id="sec-3-2"><span class="section-number-3">3.2</span> Identifying variant sites</h3>
 <div class="outline-text-3" id="text-3-2">
@@ -757,6 +646,7 @@ The defaults are suited for current Illumina sequencing data sets.
 </div>
 </div>
 
+
 <div id="outline-container-sec-3-3" class="outline-3">
 <h3 id="sec-3-3"><span class="section-number-3">3.3</span> Interpreting the results</h3>
 <div class="outline-text-3" id="text-3-3">
@@ -773,10 +663,10 @@ evidence for the presence or absence of a variant:
 test and control sample
 </dd>
 <dt> testRef, controlRef </dt><dd>Most abundant base call in the test and control sample,
-with <code>N</code> refering to multiple ones.
+with <code>N</code> refering to multiple ones
 </dd>
 <dt> testAlt </dt><dd>Most abundant mismatch/non-consensus base call, with <code>N</code> refering
-to multiple ones.
+to multiple ones
 </dd>
 <dt> ref </dt><dd>Consensus sequence
 </dd>
@@ -793,7 +683,7 @@ Exact test
 </dd>
 <dt> called </dt><dd>Was the site called as a variant?
 </dd>
-<dt> eventType </dt><dd>Type of variant event: 'somatic', 'loh', 'undecided'.
+<dt> eventType </dt><dd>Type of variant event: 'somatic', 'loh', 'undecided'
 </dd>
 <dt> pvalSomatic, padjSomatic, pvalHetero, padjHetero </dt><dd>Raw and
 Benjamini-Hochberg adjusted p-values of the binomial tests for the
@@ -802,6 +692,7 @@ respective event types
 </dl>
 </div>
 </div>
+
 
 <div id="outline-container-sec-3-4" class="outline-3">
 <h3 id="sec-3-4"><span class="section-number-3">3.4</span> Exploratory variant analysis</h3>
@@ -820,6 +711,7 @@ head(vars_all, 3)
 end.rcode-->
 </div>
 </div>
+
 
 <div id="outline-container-sec-3-5" class="outline-3">
 <h3 id="sec-3-5"><span class="section-number-3">3.5</span> Summarizing and visualizing results</h3>
@@ -883,6 +775,7 @@ end.rcode-->
 </div>
 </div>
 
+
 <div id="outline-container-sec-3-6" class="outline-3">
 <h3 id="sec-3-6"><span class="section-number-3">3.6</span> Interactive variant analysis</h3>
 <div class="outline-text-3" id="text-3-6">
@@ -890,7 +783,7 @@ end.rcode-->
 With the <code>rariantInspect</code> interface, the results of the <code>rariant</code> can be
 explored interactively in the web browser.  Since we cannot demonstrate this in
 a static document, we show screenshots of the application.  Figures and results
-tables can be displayed conveniently and subset according to multiple criteria.
+tables can be displayed conveniently and split according to multiple criteria.
 </p>
 
 <!--begin.rcode eval=FALSE
@@ -987,13 +880,13 @@ end.rcode-->
 
 
 <p>
-To get a better understanding about the evidence for the presence or absence of
-particular variants acros samples, we plot the confidence intervals, colored
+To better understand the evidence for the presence or absence of
+particular variants across samples, we plot the confidence intervals, colored
 according to the predicted event type, and abundance shifts for all sites of
 interest, colored according to the sign of the shift.
 </p>
 
-<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Confidence intervals for simulition study'
+<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Confidence intervals for simulation study'
 py1 = plotConfidenceIntervals(v_poi1, color = "eventType")
 py2 = plotConfidenceIntervals(v_poi2, color = "eventType")
 py3 = plotConfidenceIntervals(v_poi3, color = "eventType")
@@ -1017,7 +910,7 @@ the case of the next variant which consistently exists in all three samples with
 the same abundance.
 </p>
 
-<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Abundance shifts for simulition study'
+<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Abundance shifts for simulation study'
 pa1 = plotAbundanceShift(v_poi1)
 pa2 = plotAbundanceShift(v_poi2)
 pa3 = plotAbundanceShift(v_poi3)
@@ -1028,6 +921,8 @@ print(t2)
 end.rcode-->
 </div>
 </div>
+
+
 <div id="outline-container-sec-4-2" class="outline-3">
 <h3 id="sec-4-2"><span class="section-number-3">4.2</span> AML Genome Sequencing</h3>
 <div class="outline-text-3" id="text-4-2">
@@ -1214,6 +1109,7 @@ end.rcode-->
 </div>
 </div>
 
+
 <div id="outline-container-sec-4-2-2" class="outline-4">
 <h4 id="sec-4-2-2"><span class="section-number-4">4.2.2</span> Case 2: Absence of variants</h4>
 <div class="outline-text-4" id="text-4-2-2">
@@ -1244,6 +1140,7 @@ end.rcode-->
 </div>
 </div>
 
+
 <div id="outline-container-sec-4-2-3" class="outline-4">
 <h4 id="sec-4-2-3"><span class="section-number-4">4.2.3</span> Case 3: Strand-specific mismatches</h4>
 <div class="outline-text-4" id="text-4-2-3">
@@ -1272,6 +1169,7 @@ print(t3)
 end.rcode-->
 </div>
 </div>
+
 
 <div id="outline-container-sec-4-2-4" class="outline-4">
 <h4 id="sec-4-2-4"><span class="section-number-4">4.2.4</span> Case 4: Strand-specific differences in sequencing depth</h4>
@@ -1305,6 +1203,7 @@ end.rcode-->
 </div>
 </div>
 
+
 <div id="outline-container-sec-5" class="outline-2">
 <h2 id="sec-5"><span class="section-number-2">5</span> Supplementary Information</h2>
 <div class="outline-text-2" id="text-5">
@@ -1312,7 +1211,7 @@ end.rcode-->
 <h3 id="sec-5-1"><span class="section-number-3">5.1</span> Strand-specific analysis</h3>
 <div class="outline-text-3" id="text-5-1">
 <p>
-By comparing the confidence intervals between strands, we can further detect and
+By comparing the confidence intervals between the two strands, we can further detect and
 characterize effects such as variations in sequencing depth and strand biases.
 We illustrate this with a set of hypothetical cases for confidence intervals for
 two strands.  The upper row (cases 4-7) corresponds to sites with overlapping
@@ -1356,13 +1255,14 @@ both strands.
 </div>
 </div>
 
+
 <div id="outline-container-sec-5-2" class="outline-3">
 <h3 id="sec-5-2"><span class="section-number-3">5.2</span> Statistical power and sequencing depth</h3>
 <div class="outline-text-3" id="text-5-2">
 <p>
 The statistical power, and thereby the width of the confidence interval, depends
 on the sequencing depths in both samples.  For the region harboring the variant
-site, we can illustrate the relationship between by plotting the confidence
+site, we can illustrate the relationship between them by plotting the confidence
 interval width against the sequencing depth averaged over both samples.
 </p>
 
@@ -1379,6 +1279,7 @@ end.rcode-->
 </div>
 </div>
 
+
 <div id="outline-container-sec-5-3" class="outline-3">
 <h3 id="sec-5-3"><span class="section-number-3">5.3</span> Assessing performance of confidence interval methods</h3>
 <div class="outline-text-3" id="text-5-3">
@@ -1389,7 +1290,7 @@ have coverage probabilities close to the nominal confidence level &beta; over a
 wide range in the parameter space.  Previous publications analyzing the
 performance focus on parameter settings that deviate from those of sequencing
 data sets [<a href="#fagerland_recommended_2011">7</a>].  Therefore, we perform a simulation
-that demonstrates the behavior of the Agrest-Caffo methods for a whole-genome
+that demonstrates the behavior of the Agresti-Caffo methods for a whole-genome
 sequencing study.  For a fixed sequencing depth of 30 in both test and control
 sample, the coverage probability of 95% AC confidence intervals is computed for
 all possible combinations of mismatch counts \(K^{T}\) and \(K^{C}\).
@@ -1426,6 +1327,7 @@ shows a conservative perfomance.
 </div>
 </div>
 
+
 <div id="outline-container-sec-5-4" class="outline-3">
 <h3 id="sec-5-4"><span class="section-number-3">5.4</span> Benchmarking of performance and resources</h3>
 <div class="outline-text-3" id="text-5-4">
@@ -1443,6 +1345,7 @@ computational efficiency will increase with newer versions.
 </div>
 </div>
 </div>
+
 
 
 
@@ -1487,6 +1390,7 @@ full output of <code>sessionInfo()</code>.
 </div>
 
 
+
 <div id="outline-container-sec-6-2" class="outline-3">
 <h3 id="sec-6-2"><span class="section-number-3">6.2</span> Installing the package</h3>
 <div class="outline-text-3" id="text-6-2">
@@ -1506,10 +1410,12 @@ end.rcode-->
 </div>
 </div>
 
+
 <div id="outline-container-sec-7" class="outline-2">
 <h2 id="sec-7"><span class="section-number-2">7</span> References</h2>
 <div class="outline-text-2" id="text-7">
 <div id="bibliography">
+<h2>References</h2>
 
 </div>
 <table>
@@ -1801,6 +1707,7 @@ Paul&nbsp;Theodor Pyl, Julian Gehring, Bernd Fischer, and Wolfgang Huber.
 </div>
 </div>
 
+
 <div id="outline-container-sec-8" class="outline-2">
 <h2 id="sec-8"><span class="section-number-2">8</span> Session Info</h2>
 <div class="outline-text-2" id="text-8">
@@ -1809,12 +1716,6 @@ sessionInfo()
 end.rcode-->
 </div>
 </div>
-</div>
-<div id="postamble" class="status">
-<p class="author">Author: Julian Gehring, Simon Anders, Bernd Klaus (EMBL Heidelberg) (<a href="mailto:julian@crick">julian@crick</a>)</p>
-<p class="date">Date: </p>
-<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.3.1 (<a href="http://orgmode.org">Org</a> mode 8.2.5h)</p>
-<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>

@@ -13,7 +13,7 @@
   
 \usage{
 
-gr2pos(x)
+gr2pos(x, range = TRUE)
 
 pos2gr(x)
 
@@ -23,11 +23,14 @@ pos2gr(x)
   
   \item{x}{GRanges or character object.}  
     
+  \item{range}{Should the range instead of the start position be
+    returned?}
+
 }
 
 \value{
 
-  A GRanges object or character object, with the position.
+  A GRanges object or character object, with the positions.
 
 }
 
