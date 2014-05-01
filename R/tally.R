@@ -110,14 +110,24 @@ dna_bases <- function() {
 }
 
 
-tallyBamRegion <- function(file, region, ncycles, minq) {
+tallyBamRegion <- function(file, region, nCycles = 0, minQual = 0) {
 
     tally = tallyBAM(file,
             chr = as.character(seqnames(region)),
             start = start(region), stop = end(region),
-            q = minq, ncycles = ncycles)
+            q = minQual, ncycles = nCycles)
     ## only HQ counts
     tally = aperm(tally[5:8, , ,drop=FALSE], c(3, 1, 2)) ## dont drop if only one pos
+    dimnames(tally) = list(position = NULL,
+                base = c("A", "C", "G", "T"),
+                strand = c("+", "-"))
 
     return(tally)
+}
+
+
+tallyVariants <- function(bams, region, genome, ...) {
+    
+    ref_seq = getSeq(genome, region)
+    tally = tallyBamRegion(bams, region, ...)
 }

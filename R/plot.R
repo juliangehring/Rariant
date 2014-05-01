@@ -55,16 +55,30 @@ plotAbundanceShift <- function (x, ylim = c(-0.05, 1.05), rates = TRUE, ...) {
 }
 
 
-plotShiftSupport <- function (x, group = NULL, alpha = 0.5, size = 2)  {
+plotShiftSupport <- function (x, group = NULL, alpha = 0.5, size = 2, ...)  {
 
     df = data.frame(vf = x$d, cov = x$testDepth)
     if (!is.null(group)) 
         df[, group] = as(x, "data.frame")[, group]
     df = df[!is.na(df$vf), ]
     p = ggplot(df) + geom_point(aes_string(x = "vf", y = "cov", 
-        col = group), size = size, alpha = alpha) + xlim(0, 1) + 
+        col = group), size = size, alpha = alpha, ...) + xlim(0, 1) + 
         xlab("Shift") + ylab("Test sequencing depth") + theme_bw() + 
         scale_y_log10()
     
+    return(p)
+}
+
+
+plotRates <- function(x, limit = 25, color = NULL, fill = NULL, ...) {
+
+    df = as.data.frame(x)
+    df$l1 = blogit(df$p1, limit)
+    df$l2 = blogit(df$p2, limit)
+    p = ggplot(df) +
+        geom_point(aes_string(x = "l2", y = "l1", color = color, fill = fill), ...) +
+        geom_abline(aes_string(slope = "1"), color = "lightgray") + 
+        xlab("Control") + ylab("Test") + theme_bw()
+
     return(p)
 }

@@ -4,9 +4,7 @@
 #+LATEX_CLASS: biocKnitrRnwPlain
 #+LATEX_HEADER: \usepackage[nottoc,numbib]{tocbibind}
 #+LATEX_HEADER: \usepackage{helvet}
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="bioc.css" />
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://www.ebi.ac.uk/~jgehring/css/bioc.css" />
-#+OPTIONS: html-postamble:t html-preamble:nil
+#+OPTIONS: html-postamble:nil html-preamble:nil html-style:nil
 #+INFOJS_OPT: view:showall toc:t ftoc:t ltoc:nil
 
 #+MACRO: M @@latex:\$1{@@$2@@latex:}@@
@@ -24,7 +22,7 @@
 #+BEGIN_HTML
 <!--
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Rariant - HTML}
+%\VignetteIndexEntry{Rariant}
 %\VignettePackage{Rariant}
 -->
 #+END_HTML
@@ -32,26 +30,31 @@
 #+COMMENT: if ':exports none', the code block is not exported to the vignette templates 
 #+BEGIN_SRC R :exports code :ravel results='hide', echo=FALSE, message=FALSE, warning=FALSE
   set.seed(1)
-  options(width = 120)
-  library(knitr)
-  opts_chunk$set(comment = "  ", fig.path = "", fig.align = "center", out.width = "90%", indent = 10, cache = FALSE, cache.path = "../cache")
-  ## out.width = "1\\columnwidth"
-  ## uncomment options for HTML output, one of them breaks the image export
-  ## background = "#FFFFFF", dev = 'pdf'
-#+END_SRC
 
-#+BEGIN_HTML
-<!--begin.rcode setup, results='hide', echo=FALSE, message=FALSE, warning=FALSE
-library(knitr)
-# to base64 encode images
-opts_knit$set(upload.fun = image_uri)
-knit_hooks$set(fig.cap = function(before, options, envir) {
-if(!before) {
-paste('<p class="caption">',options$fig.cap,"</p>",sep="")
-}
-})
-end.rcode-->
-#+END_HTML
+  options(width = 70)
+
+  library(knitr)
+
+  style = paste(readLines("bioc.css"), collapse = "\n")
+
+  opts_knit$set(self.contained = TRUE,
+                upload.fun = image_uri,
+                header = c(highlight = style))
+
+  opts_chunk$set(comment = "  ",
+                 fig.path = "",
+                 fig.align = "center",
+                 out.width = "90%",
+                 indent = 10,
+                 cache = FALSE,
+                 cache.path = "../cache")
+
+  knit_hooks$set(fig.cap = function(before, options, envir) {
+      if(!before) {
+          paste('<p class="caption">',options$fig.cap,"</p>",sep="")
+      }
+  })
+#+END_SRC
 
 #+BEGIN_HTML
 <p class="author-top">Julian Gehring, Simon Anders, Bernd Klaus (EMBL Heidelberg)</p>
@@ -70,7 +73,7 @@ the aim is to identify single nucloetide variants (SNVs) which show significant
 changes between the two.  Typically, this is applied for comparing
 a tumor sample against a matched normal/constitutive sample of the same patient,
 focusing on alterations that may have occurred in the transition to the
-cancerous tissue, and therefore often termed /somatic/ variants.  However, a
+cancerous tissue, and therefore are often termed /somatic/ variants.  However, a
 broader range of questions can be addressed by extending the focus to include
 genomic changes of temporally or spatially separated samples to each other, to
 investigate tumor evolution and subclonal shifts cite:yates_evolution_2012.
@@ -85,7 +88,7 @@ of a tumor haboring multiple subclones, variants may be present in both stages
 with changing abundances.  Here, the classical definition of a /somatic/ variant
 would result in missing the event.  In the following, we will therefore focus on
 estimating the shift in variant allele frequencies between a test and a control
-samples.  The classical somatic definition requiring the variant to be absent in the
+sample.  The classical somatic definition requiring the variant to be absent in the
 control constitutes a special case of this.
 
 Numerous approaches focus on more narrowly defined somatic comparisons,
@@ -94,7 +97,7 @@ motivated by scientific questions in the field of cancer genomics
 do not allow an explicit statement about the evidence for the absence of a
 putative variant in a sample, and a clear distinction is needed whether a /negative/ call
 results from a true negative site or the lack of statistical power to detect it.
-As an example, image a variant calling approach using a hypothesis test with the
+As an example, imagine a variant calling approach using a hypothesis test with the
 null hypothesis that the variant frequencies at a locus are identical for both
 samples.  While a significant p-value provides evidence for the presence of a
 variant, inverting this argument does not work: A non-significant p-value can
@@ -171,8 +174,8 @@ follow binomial distributions with parameters $p^{S}_{i}$ and $N^{S}_{i}$,
 several methods have been established for estimating confidence intervals for
 the difference of two rate parameters [[cite:fleiss_statistical_2013]]
 cite:fagerland_recommended_2011.  The performance of an approach is generally
-described in term of their coverage probabilities indicating the probability of
-a confidence interval to cover the true value (see [[Assessing performance of
+described in terms of its coverage probability indicating the probability of a
+confidence interval to cover the true value (see [[Assessing performance of
 confidence interval methods]]).  Coverage probabilities greater and less than the
 confidence level $\beta$ describe conservative and liberal behaviors,
 respectively. Due to the conservative coverage probabilities and high
@@ -210,7 +213,7 @@ confidence interval gives us information about the precision and power of the
 estimate.  Generally, wide confidence intervals will be present at sites with
 little statistical power, as due to low sequencing depths.
 
-For the case that we compare a tumor to a matched normal sample, we shows a set
+For the case that we compare a tumor to a matched normal sample, we show a set
 of hypothetical cases that can be distinguished by regarding the point estimate
 and its confidence interval:
 
@@ -247,13 +250,13 @@ and its confidence interval:
 
 ** Distinguishing event classes
 
-Focusing on the comparative shift of non-consensus frequencies can detect and
+Focusing on the comparative shift of non-consensus frequencies allows us to detect and
 distinguish different types of events.  Since =Rariant= does not make explicit
 assumptions about the abundance of a potential variant in the control sample, we
 are further able to find clonal shifts, for example between different tumor
 samples, or losses of heterozygocity. Generally, gains and losses of variant
 alleles are characterized by positive and negative values of $d$, respectively.
-For a differentiated interpretation of the results, we classify a variants into
+For a differentiated interpretation of the results, we classify a variant into
 one of four classes:
 
 - somatic :: A somatic variant that does not occur in the control sample
@@ -297,7 +300,7 @@ frequencies between two samples at each genomic position individually:
    of mismatching and total bases between the samples: ${K^{T}_{i}, N^{T}_{i},
    K^{C}_{i}, N^{C}_{i}}$.  The p-values are corrected for multiple testing
    according to the Benjamini-Hochberg procedure.  Only positions rejecting the
-   null hypothesis at a significance level $\alpha$ are furtheron considered as
+   null hypothesis at a significance level $\alpha$ are further on considered as
    potential variants.
 
 4. Calculate Agresti-Caffo confidence intervals with confidence level $\beta$,
@@ -384,9 +387,9 @@ evidence for the presence or absence of a variant:
 - testDepth, controlDepth :: Sequencing depth $N_{i}^{T}$ and $N_{i}^{C}$ in the
      test and control sample
 - testRef, controlRef :: Most abundant base call in the test and control sample,
-     with =N= refering to multiple ones.
+     with =N= refering to multiple ones
 - testAlt :: Most abundant mismatch/non-consensus base call, with =N= refering
-             to multiple ones.
+             to multiple ones
 - ref :: Consensus sequence
 - d, ds :: Estimated shift $\hat{d}_{i}$ of the non-consensus frequencies, with
            =ds= as the shrinkage estimate
@@ -396,7 +399,7 @@ evidence for the presence or absence of a variant:
 - pval, padj :: Raw and Benjamini-Hochberg adjusted p-value of the Fisher's
                 Exact test
 - called :: Was the site called as a variant?
-- eventType :: Type of variant event: 'somatic', 'loh', 'undecided'.
+- eventType :: Type of variant event: 'somatic', 'loh', 'undecided'
 - pvalSomatic, padjSomatic, pvalHetero, padjHetero :: Raw and
      Benjamini-Hochberg adjusted p-values of the binomial tests for the
      respective event types
@@ -476,7 +479,7 @@ depth]].
 With the =rariantInspect= interface, the results of the =rariant= can be
 explored interactively in the web browser.  Since we cannot demonstrate this in
 a static document, we show screenshots of the application.  Figures and results
-tables can be displayed conveniently and subset according to multiple criteria.
+tables can be displayed conveniently and split according to multiple criteria.
 
 #+BEGIN_SRC R :ravel eval=FALSE
   rariantInspect(vars_all)
@@ -490,7 +493,6 @@ tables can be displayed conveniently and subset according to multiple criteria.
 #+CAPTION: Interactive analysis, showing non-consensus rate shift plots
 #+ATTR_HTML: :width 90%
 [[file:rariant-inspect-shift.png]]
-
 
 
 * Example Cases
@@ -555,12 +557,12 @@ least one sample.  This gives us 12 positions to consider in the following.
 #+END_SRC
 
 
-To get a better understanding about the evidence for the presence or absence of
-particular variants acros samples, we plot the confidence intervals, colored
+To better understand the evidence for the presence or absence of
+particular variants across samples, we plot the confidence intervals, colored
 according to the predicted event type, and abundance shifts for all sites of
 interest, colored according to the sign of the shift.
 
-#+BEGIN_SRC R :exports both :results output graphics :file platinum-ci-tracks.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Confidence intervals for simulition study'
+#+BEGIN_SRC R :exports both :results output graphics :file platinum-ci-tracks.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Confidence intervals for simulation study'
   py1 = plotConfidenceIntervals(v_poi1, color = "eventType")
   py2 = plotConfidenceIntervals(v_poi2, color = "eventType")
   py3 = plotConfidenceIntervals(v_poi3, color = "eventType")
@@ -582,7 +584,7 @@ some clones carry a somatic variant and others not.  Further, we can also see
 the case of the next variant which consistently exists in all three samples with
 the same abundance.
 
-#+BEGIN_SRC R :exports both :results output graphics :file platinum-shift-tracks.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Abundance shifts for simulition study'
+#+BEGIN_SRC R :exports both :results output graphics :file platinum-shift-tracks.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Abundance shifts for simulation study'
   pa1 = plotAbundanceShift(v_poi1)
   pa2 = plotAbundanceShift(v_poi2)
   pa3 = plotAbundanceShift(v_poi3)
@@ -590,55 +592,6 @@ the same abundance.
   t2 = tracks(pa1, pa2, pa3)
 
   print(t2)
-#+END_SRC
-
-#+BEGIN_SRC R :exports none
-  x = v_poi1
-  y = v_poi2
-  z = v_poi3
-
-  multiCompare <- function(..., height = 0.9, width = 0.95, size = 1.5, fill = "d") {
-      l = list(...)
-      browser()
-      if(is.null(names(l))) {
-          n = as.character(seq_along(l))
-      } else {
-          n = names(l)
-      }
-      f <- function(x) {
-          x1 = as(x, "data.frame")
-          x1$n = n
-          x1$outside = ciOutside(x1)
-          return(x1)
-      }
-      browser()
-      lx = lapply(l, f)
-      z = do.call(rbind, lx)
-      z$sample = factor(rep(n, elementLengths(l)))
-      g = ggplot(z) +
-          geom_tile(aes_string(x = "sample", y = "n", fill = fill, color = "outside"),
-                    size = size, height = height, width = width) +
-          theme_bw() + scale_fill_gradient2(limits = c(-1, 1)) +
-          xlab("Sample") + ylab("Variant")
-      return(g)
-  }
-
-  foo <- function(...) {
-      l = list(...)
-      return(l)
-  }
-
-  multiCompare(a = x, b = y, c = z)
-
-  multiCompare(x, y, z, fill = "lower")
-#+END_SRC
-
-
-#+BEGIN_SRC R :exports none
-  selectCalls <- function(x, called = TRUE, padj, pval, value) {
-      res = x[x$called %in% called]
-      return(res)
-  }
 #+END_SRC
 
 
@@ -900,7 +853,7 @@ wide confidence intervals.
 
 ** Strand-specific analysis
 
-By comparing the confidence intervals between strands, we can further detect and
+By comparing the confidence intervals between the two strands, we can further detect and
 characterize effects such as variations in sequencing depth and strand biases.
 We illustrate this with a set of hypothetical cases for confidence intervals for
 two strands.  The upper row (cases 4-7) corresponds to sites with overlapping
@@ -945,7 +898,7 @@ both strands.
 
 The statistical power, and thereby the width of the confidence interval, depends
 on the sequencing depths in both samples.  For the region harboring the variant
-site, we can illustrate the relationship between by plotting the confidence
+site, we can illustrate the relationship between them by plotting the confidence
 interval width against the sequencing depth averaged over both samples.
 
 #+BEGIN_SRC R :exports both :results output graphics :file ci-width-depth.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE, fig.height=7, out.width='50%', fig.cap='Confidence interval width - sequencing depth relationship.  The identified variant is marked in blue.'
@@ -999,7 +952,7 @@ have coverage probabilities close to the nominal confidence level \beta over a
 wide range in the parameter space.  Previous publications analyzing the
 performance focus on parameter settings that deviate from those of sequencing
 data sets cite:fagerland_recommended_2011.  Therefore, we perform a simulation
-that demonstrates the behavior of the Agrest-Caffo methods for a whole-genome
+that demonstrates the behavior of the Agresti-Caffo methods for a whole-genome
 sequencing study.  For a fixed sequencing depth of 30 in both test and control
 sample, the coverage probability of 95% AC confidence intervals is computed for
 all possible combinations of mismatch counts $K^{T}$ and $K^{C}$.

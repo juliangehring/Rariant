@@ -1,6 +1,13 @@
 \name{rariant}
+
+\docType{methods}
   
 \alias{rariant}
+\alias{rariant-methods}
+\alias{rariant,BamFile,BamFile,GRanges-method}
+\alias{rariant,character,character,GRanges-method}
+\alias{rariant,array,array,GRanges-method}
+
 \alias{rariantStandalone}
 \alias{readRariant}
 \alias{writeRariant}
@@ -9,7 +16,7 @@
 
 \description{
   
-  The 'rariant' function screens for variant shifts between a test and
+  The 'rariant' function identifies variant shifts between a test and
   control sample.  These highlevel functions offers a convenient
   interface for large-scale identification as well as for reexamination
   of existing variant calls.
@@ -18,10 +25,22 @@
 
 \usage{
   
-  rariant(test, control, region, beta = 0.95, alpha = 1 - beta,
-  select = TRUE, consensus, resultFile, strand = c("both", "plus", "minus"),
-  nCycles = 10, minQual = 20, block = 1e4, value = TRUE, criteria = c("both", "any", "fet", "ci"))
+  \S4method{rariant}{BamFile,BamFile,GRanges}(test, control, region,
+      beta = 0.95, alpha = 1 - beta, select = TRUE, consensus,
+      resultFile, strand = c("both", "plus", "minus"), nCycles = 10,
+      minQual = 20, block = 1e4, value = TRUE, criteria = c("both",
+      "any", "fet", "ci"))
 
+  \S4method{rariant}{character,character,GRanges}(test, control, region,
+      beta = 0.95, alpha = 1 - beta, select = TRUE, consensus,
+      resultFile, strand = c("both", "plus", "minus"), nCycles = 10,
+      minQual = 20, block = 1e4, value = TRUE, criteria = c("both",
+      "any", "fet", "ci"))
+
+  \S4method{rariant}{array,array,GRanges}(test, control, region, beta =
+0.95, alpha = 1 - beta, select = TRUE, consensus, strand = c("both",
+"plus", "minus"), criteria = c("both", "any", "fet", "ci"))
+  
   rariantStandalone()
   
   readRariant(file)

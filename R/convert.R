@@ -29,8 +29,12 @@ vr2gr <- function(vr) {
 }
 
 
-gr2pos <- function(x) {
-    res = sprintf("%s:%d-%d", as.character(seqnames(x)), start(x), end(x))
+gr2pos <- function(x, range = TRUE) {
+    if(range) {
+        res = sprintf("%s:%d-%d", as.character(seqnames(x)), start(x), end(x))
+    } else {
+        res = sprintf("%s:%d", as.character(seqnames(x)), start(x))
+    }
     return(res)
 }
 
