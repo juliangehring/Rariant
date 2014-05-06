@@ -1,6 +1,6 @@
-readRariant <- function(file) {
+readRariant <- function(file, ...) {
   
-    x = read.table(file, header = TRUE, sep = "\t")
+    x = read.table(file, header = TRUE, sep = "\t", ...)
     gr = df2gr(x)
     gr = sort(sortSeqlevels(gr))
 
@@ -8,7 +8,7 @@ readRariant <- function(file) {
 }
 
 
-writeRariant <- function(x, file) {
+writeRariant <- function(x, file, ...) {
 
     df = gr2df(x)
     
@@ -18,7 +18,7 @@ writeRariant <- function(x, file) {
     n[match(c("seqnames", "start"), n)] = c("chr", "pos")
     names(df) = n
     
-    write.table(df, file, quote = FALSE, sep = "\t", row.names = FALSE)
+    write.table(df, file, quote = FALSE, sep = "\t", row.names = FALSE, ...)
 
 }
 

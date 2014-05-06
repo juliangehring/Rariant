@@ -43,9 +43,9 @@
   
   rariantStandalone()
   
-  readRariant(file)
+  readRariant(file, ...)
 
-  writeRariant(x, file)
+  writeRariant(x, file, ...)
 
 }
 
@@ -105,6 +105,8 @@
 
   \item{x}{Output of 'rariant' call.}
   
+  \item{...}{Additional arguments passed to 'read.table' or 'write.table'.}
+
 }
 
 
