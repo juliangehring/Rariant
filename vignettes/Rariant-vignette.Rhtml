@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>Comparative Identification and Assessment of Single Nucleotide Variants Through Shifts in Base Call Frequencies</title>
-<!-- 2014-04-30 Mi 23:16 -->
+<!-- 2014-05-08 Do 17:15 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Julian Gehring, Simon Anders, Bernd Klaus (EMBL Heidelberg)" />
@@ -149,43 +149,35 @@ for the JavaScript code in this tag.
 </li>
 <li><a href="#sec-3">3. Workflow</a>
 <ul>
-<li><a href="#sec-3-1">3.1. The data set</a></li>
-<li><a href="#sec-3-2">3.2. Identifying variant sites</a></li>
-<li><a href="#sec-3-3">3.3. Interpreting the results</a></li>
-<li><a href="#sec-3-4">3.4. Exploratory variant analysis</a></li>
-<li><a href="#sec-3-5">3.5. Summarizing and visualizing results</a></li>
-<li><a href="#sec-3-6">3.6. Interactive variant analysis</a></li>
-</ul>
-</li>
-<li><a href="#sec-4">4. Example Cases</a>
+<li><a href="#sec-3-1">3.1. AML Exome Sequencing</a>
 <ul>
-<li><a href="#sec-4-1">4.1. 1000 Genomes Simulation Study</a></li>
-<li><a href="#sec-4-2">4.2. AML Genome Sequencing</a>
+<li><a href="#sec-3-1-1">3.1.1. The data set</a></li>
+<li><a href="#sec-3-1-2">3.1.2. Identifying variant sites</a></li>
+<li><a href="#sec-3-1-3">3.1.3. Interpreting the results</a></li>
+<li><a href="#sec-3-1-4">3.1.4. Exploratory variant analysis</a></li>
+<li><a href="#sec-3-1-5">3.1.5. Summarizing and visualizing results</a></li>
+<li><a href="#sec-3-1-6">3.1.6. Interactive variant analysis</a></li>
+</ul>
+</li>
+<li><a href="#sec-3-2">3.2. Multip Sample Simulation Study</a></li>
+</ul>
+</li>
+<li><a href="#sec-4">4. Supplementary Information</a>
 <ul>
-<li><a href="#sec-4-2-1">4.2.1. Case 1: Somatic variant</a></li>
-<li><a href="#sec-4-2-2">4.2.2. Case 2: Absence of variants</a></li>
-<li><a href="#sec-4-2-3">4.2.3. Case 3: Strand-specific mismatches</a></li>
-<li><a href="#sec-4-2-4">4.2.4. Case 4: Strand-specific differences in sequencing depth</a></li>
+<li><a href="#sec-4-1">4.1. Strand-specific analysis</a></li>
+<li><a href="#sec-4-2">4.2. Statistical power and sequencing depth</a></li>
+<li><a href="#sec-4-3">4.3. Assessing performance of confidence interval methods</a></li>
+<li><a href="#sec-4-4">4.4. Benchmarking of performance and resources</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a href="#sec-5">5. Supplementary Information</a>
+<li><a href="#sec-5">5. Frequently Asked Questions</a>
 <ul>
-<li><a href="#sec-5-1">5.1. Strand-specific analysis</a></li>
-<li><a href="#sec-5-2">5.2. Statistical power and sequencing depth</a></li>
-<li><a href="#sec-5-3">5.3. Assessing performance of confidence interval methods</a></li>
-<li><a href="#sec-5-4">5.4. Benchmarking of performance and resources</a></li>
+<li><a href="#sec-5-1">5.1. Getting help</a></li>
+<li><a href="#sec-5-2">5.2. Installing the package</a></li>
 </ul>
 </li>
-<li><a href="#sec-6">6. Frequently Asked Questions</a>
-<ul>
-<li><a href="#sec-6-1">6.1. Getting help</a></li>
-<li><a href="#sec-6-2">6.2. Installing the package</a></li>
-</ul>
-</li>
-<li><a href="#sec-7">7. References</a></li>
-<li><a href="#sec-8">8. Session Info</a></li>
+<li><a href="#sec-6">6. References</a></li>
+<li><a href="#sec-7">7. Session Info</a></li>
 </ul>
 </div>
 </div>
@@ -211,7 +203,8 @@ opts_knit$set(self.contained = TRUE,
 opts_chunk$set(comment = "  ",
                fig.path = "",
                fig.align = "center",
-               out.width = "90%",
+               out.width = "100%",
+               dpi = 300,
                indent = 10,
                cache = FALSE,
                cache.path = "../cache")
@@ -371,7 +364,7 @@ several methods have been established for estimating confidence intervals for
 the difference of two rate parameters [<a href="#fleiss_statistical_2013">13</a>]
 [<a href="#fagerland_recommended_2011">7</a>].  The performance of an approach is generally
 described in terms of its coverage probability indicating the probability of a
-confidence interval to cover the true value (see <a href="#sec-5-3">5.3</a>).  Coverage probabilities greater and less than the
+confidence interval to cover the true value (see <a href="#sec-4-3">4.3</a>).  Coverage probabilities greater and less than the
 confidence level \(\beta\) describe conservative and liberal behaviors,
 respectively. Due to the conservative coverage probabilities and high
 computational effort of exact confidence interval estimates, approximate methods
@@ -566,8 +559,11 @@ powerless (see <a href="#sec-2-3">2.3</a>).
 <div id="outline-container-sec-3" class="outline-2">
 <h2 id="sec-3"><span class="section-number-2">3</span> Workflow</h2>
 <div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> AML Exome Sequencing</h3>
+<div class="outline-text-3" id="text-3-1">
 <p>
-In the following, we show a complete workflow for identifying SNVs from aligned
+In the following, we will show a complete workflow for identifying SNVs from aligned
 short reads.  For illustration purposes, we will focus on data from a whole
 exome sequencing (WES) study, as part of the <code>h5vcData</code> package
 [<a href="#pyl_h5vcdata:_2013">12</a>], covering a subset of the NRAS gene.
@@ -584,9 +580,9 @@ end.rcode-->
 </div>
 
 
-<div id="outline-container-sec-3-1" class="outline-3">
-<h3 id="sec-3-1"><span class="section-number-3">3.1</span> The data set</h3>
-<div class="outline-text-3" id="text-3-1">
+<div id="outline-container-sec-3-1-1" class="outline-4">
+<h4 id="sec-3-1-1"><span class="section-number-4">3.1.1</span> The data set</h4>
+<div class="outline-text-4" id="text-3-1-1">
 <p>
 We compare an AML tumor sample with the matching control sample of a single
 patient, starting with the alignments stored in <code>BAM</code> files.  Here, we will use
@@ -611,9 +607,9 @@ end.rcode-->
 </div>
 
 
-<div id="outline-container-sec-3-2" class="outline-3">
-<h3 id="sec-3-2"><span class="section-number-3">3.2</span> Identifying variant sites</h3>
-<div class="outline-text-3" id="text-3-2">
+<div id="outline-container-sec-3-1-2" class="outline-4">
+<h4 id="sec-3-1-2"><span class="section-number-4">3.1.2</span> Identifying variant sites</h4>
+<div class="outline-text-4" id="text-3-1-2">
 <p>
 Variant sites can be identified with the <code>rariant</code> function.  As input, we
 specify the alignment files for the test and control sample.  In case that we
@@ -647,9 +643,9 @@ The defaults are suited for current Illumina sequencing data sets.
 </div>
 
 
-<div id="outline-container-sec-3-3" class="outline-3">
-<h3 id="sec-3-3"><span class="section-number-3">3.3</span> Interpreting the results</h3>
-<div class="outline-text-3" id="text-3-3">
+<div id="outline-container-sec-3-1-3" class="outline-4">
+<h4 id="sec-3-1-3"><span class="section-number-4">3.1.3</span> Interpreting the results</h4>
+<div class="outline-text-4" id="text-3-1-3">
 <p>
 The columns of the <code>GRanges</code> object returned by <code>rariant</code> summarizes the
 evidence for the presence or absence of a variant:
@@ -694,9 +690,9 @@ respective event types
 </div>
 
 
-<div id="outline-container-sec-3-4" class="outline-3">
-<h3 id="sec-3-4"><span class="section-number-3">3.4</span> Exploratory variant analysis</h3>
-<div class="outline-text-3" id="text-3-4">
+<div id="outline-container-sec-3-1-4" class="outline-4">
+<h4 id="sec-3-1-4"><span class="section-number-4">3.1.4</span> Exploratory variant analysis</h4>
+<div class="outline-text-4" id="text-3-1-4">
 <p>
 By default, only identified variants are returned.  We can also obtain the
 results for all sites in our region of interest with <code>select = FALSE</code>.  This
@@ -713,9 +709,9 @@ end.rcode-->
 </div>
 
 
-<div id="outline-container-sec-3-5" class="outline-3">
-<h3 id="sec-3-5"><span class="section-number-3">3.5</span> Summarizing and visualizing results</h3>
-<div class="outline-text-3" id="text-3-5">
+<div id="outline-container-sec-3-1-5" class="outline-4">
+<h4 id="sec-3-1-5"><span class="section-number-4">3.1.5</span> Summarizing and visualizing results</h4>
+<div class="outline-text-4" id="text-3-1-5">
 <p>
 Sites harboring potential biological variants can be identified by confidence
 intervals that reject non-consensus frequencies shifts of 0.  The <code>ciOutside</code>
@@ -758,7 +754,7 @@ end.rcode-->
 <p>
 Looking at a larger region, we see that the certainty of our estimates
 correlates with sequencing depth of the samples.  We describe this relationship
-in more detail in the supplementary section <a href="#sec-5-2">5.2</a>.
+in more detail in the supplementary section <a href="#sec-4-2">4.2</a>.
 </p>
 
 <!--begin.rcode fig.width=14, fig.height=7, fig.cap='NRAS: Non-variant site with sequencing depth'
@@ -776,9 +772,9 @@ end.rcode-->
 </div>
 
 
-<div id="outline-container-sec-3-6" class="outline-3">
-<h3 id="sec-3-6"><span class="section-number-3">3.6</span> Interactive variant analysis</h3>
-<div class="outline-text-3" id="text-3-6">
+<div id="outline-container-sec-3-1-6" class="outline-4">
+<h4 id="sec-3-1-6"><span class="section-number-4">3.1.6</span> Interactive variant analysis</h4>
+<div class="outline-text-4" id="text-3-1-6">
 <p>
 With the <code>rariantInspect</code> interface, the results of the <code>rariant</code> can be
 explored interactively in the web browser.  Since we cannot demonstrate this in
@@ -809,12 +805,10 @@ end.rcode-->
 </div>
 
 
-<div id="outline-container-sec-4" class="outline-2">
-<h2 id="sec-4"><span class="section-number-2">4</span> Example Cases</h2>
-<div class="outline-text-2" id="text-4">
-</div><div id="outline-container-sec-4-1" class="outline-3">
-<h3 id="sec-4-1"><span class="section-number-3">4.1</span> 1000 Genomes Simulation Study</h3>
-<div class="outline-text-3" id="text-4-1">
+
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> Multip Sample Simulation Study</h3>
+<div class="outline-text-3" id="text-3-2">
 <p>
 We want to further demostrate the usage and abilities of the <code>Rariant</code> package
 on a real-life data set.  Due to legal and privacy issues, most human cancer
@@ -851,33 +845,17 @@ test2_bam = system.file("extdata", "test2.bam", package = "Rariant", mustWork = 
 mix_bam = system.file("extdata", "mix.bam", package = "Rariant", mustWork = TRUE)
 end.rcode-->
 
-
 <!--begin.rcode 
 v_test1 = rariant(test1_bam, control_bam, tp53_region, select = FALSE)
 v_test2 = rariant(test2_bam, control_bam, tp53_region, select = FALSE)
 v_mix = rariant(mix_bam, control_bam, tp53_region, select = FALSE)
 end.rcode-->
 
-<p>
-In the following, we look at positions which showed a significant effect in at
-least one sample.  This gives us 12 positions to consider in the following.
-</p>
-
 <!--begin.rcode 
-poi = unique(c(v_test1[ciOutside(v_test1)], v_test2[ciOutside(v_test2)], v_mix[ciOutside(v_mix)]))
+v_all = GenomicRangesList(T1 = v_test1, T2 = v_test2, M = v_mix)
 
-length(poi)
-
-head(poi)
+v_all = endoapply(v_all, updateCalls)
 end.rcode-->
-
-
-<!--begin.rcode 
-v_poi1 = v_test1[v_test1 %in% poi]
-v_poi2 = v_test2[v_test2 %in% poi]
-v_poi3 = v_mix[v_mix %in% poi]
-end.rcode-->
-
 
 <p>
 To better understand the evidence for the presence or absence of
@@ -887,14 +865,27 @@ interest, colored according to the sign of the shift.
 </p>
 
 <!--begin.rcode fig.width=14, fig.height=7, fig.cap='Confidence intervals for simulation study'
-py1 = plotConfidenceIntervals(v_poi1, color = "eventType")
-py2 = plotConfidenceIntervals(v_poi2, color = "eventType")
-py3 = plotConfidenceIntervals(v_poi3, color = "eventType")
+t_ci = tracks(lapply(v_all, plotConfidenceIntervals, color = "verdict")) + verdictColorScale()
 
-t = tracks(py1, py2, py3)
-
-print(t)
+print(t_ci)
 end.rcode-->
+
+<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Confidence intervals for simulation study'
+t_ci = tracks(lapply(v_all, plotConfidenceIntervals, color = "eventType"))
+
+print(t_ci)
+end.rcode-->
+
+<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Abundance shifts for simulation study'
+t_rates = tracks(lapply(v_all, plotAbundanceShift))
+
+print(t_rates)
+end.rcode-->
+
+<p>
+In the following, we look at positions which showed a significant effect in at
+least one sample.  This gives us 12 positions to consider in the following.
+</p>
 
 <p>
 While most of the variants are somatic, i.e. they do not appear in the control
@@ -910,306 +901,26 @@ the case of the next variant which consistently exists in all three samples with
 the same abundance.
 </p>
 
-<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Abundance shifts for simulation study'
-pa1 = plotAbundanceShift(v_poi1)
-pa2 = plotAbundanceShift(v_poi2)
-pa3 = plotAbundanceShift(v_poi3)
+<!--begin.rcode 
+z = filterCalls(v_all, verdict %in% c("present", "inbetween", "dontknow"))
 
-t2 = tracks(pa1, pa2, pa3)
-
-print(t2)
-end.rcode-->
-</div>
-</div>
-
-
-<div id="outline-container-sec-4-2" class="outline-3">
-<h3 id="sec-4-2"><span class="section-number-3">4.2</span> AML Genome Sequencing</h3>
-<div class="outline-text-3" id="text-4-2">
-<p>
-To illustrate typical cases that can be distinguished with the proposed methodology
-on real data, we investigate a tumor/normal comparison of a single patient as
-part of an AML WGS study.  The data is part of the <code>h5vcData</code> package
-[<a href="#pyl_h5vcdata:_2013">12</a>].  We will focus on the <a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000128383"><i>APOBEC3A</i></a> locus on chromosome
-22, and will use two types of plots of a set of exemplary regions:
-</p>
-
-<ol class="org-ol">
-<li>Mismatch plots which show the sequencing depth (in gray) and base-specific
-mismatches (in colors) separated across strands, with the normal in the top
-and the tumor sample in the bottom panel.  Positive and negative values
-correspond to the plus and minus strand, respectively.  The plots are
-generated with the <code>h5vc</code> package [<a href="#pyl_h5vc:_2014">18</a>], and details on how to
-generate these are explained in the package vignette.
-</li>
-
-<li>Confidence interval plot with the estimated somatic variant frequency (as
-dot) and corresponding 99% confidence interval (as line range) for both as
-well as the plus and minus strand.  The plots are generated with the
-<code>plotConfidenceIntervals</code> function.
-</li>
-</ol>
-
-
-<!--begin.rcode results='hide', echo=FALSE, message=FALSE, warning=FALSE
-library(Rariant)
-
-library(h5vc)
-library(h5vcData)
-library(GenomicRanges)
-library(ggbio)
-library(ggplot2)
-library(biovizBase)
+elementLengths(z)
 end.rcode-->
 
-<!--begin.rcode results='hide', echo=FALSE, message=FALSE, warning=FALSE
-roi = GRanges("chr22", IRanges(39357400, 39357400))
-data(genesymbol, package = "biovizBase")
-apo = reduce(genesymbol[names(genesymbol) %in% "APOBEC3A"])
-end.rcode-->
-
-<!--begin.rcode results='hide', echo=FALSE, message=FALSE, warning=FALSE
-tallyFile = system.file("extdata", "example.tally.hfs5", package = "h5vcData", mustWork = TRUE)
-sampleData = getSampleData(tallyFile, "/ExampleStudy/22")
-
-stopifnot(file.exists(tallyFile))
-
-data = h5readBlock(
-    filename = tallyFile,
-    group = "/ExampleStudy/22",
-    names = c("Counts", "Coverages", "Deletions"),
-    range = c(start(apo), end(apo))
-)
-
-counts = data$Counts
-counts = counts[5:8, , , ] ## focus on HQ counts
-mm_test = aperm(counts[ ,2, , ], c(3,1,2))
-mm_control = aperm(counts[ ,1, , ], c(3,1,2))
-
-cov = data$Coverages
-cov_test = aperm(cov[2, , ], c(2,1))
-cov_control = aperm(cov[1, , ], c(2,1))
-end.rcode-->
-
-<!--begin.rcode results='hide', echo=FALSE, message=FALSE, warning=FALSE
-conf_level = 0.99
-
-## container GRanges
-gr = GRanges("22", IRanges(start(apo):end(apo), width = 1))
-
-## both strands
-k1b = rowSums(colSums(aperm(mm_test, c(3,1,2))))
-k2b = rowSums(colSums(aperm(mm_control, c(3,1,2))))
-n1b = colSums(aperm(cov_test, c(2,1)))
-n2b = colSums(aperm(cov_control, c(2,1)))
-
-cis = acCi(k1b, n1b, k2b, n2b, conf_level)
-
-grb = gr
-mcols(grb) = cis
-
-## plus strand
-k1p = rowSums(mm_test[ , ,1])
-k2p = rowSums(mm_control[ , ,1])
-n1p = cov_test[ ,1]
-n2p = cov_control[ ,1]
-
-cip = acCi(k1p, n1p, k2p, n2p, conf_level)
-
-grp = gr
-mcols(grp) = cip
-
-## minus strand
-k1m = rowSums(mm_test[ , ,2])
-k2m = rowSums(mm_control[ , ,2])
-n1m = cov_test[ ,2]
-n2m = cov_control[ ,2]
-
-cim = acCi(k1m, n1m, k2m, n2m, conf_level)
-
-grm = gr
-mcols(grm) = cim
-end.rcode-->
-
-<!--begin.rcode results='hide', echo=FALSE, message=FALSE, warning=FALSE
-idx_out = ciOutside(cis)
-ind_out = which(idx_out)
-
-table(idx_out)
-end.rcode-->
-
-<!--begin.rcode results='hide', echo=FALSE, message=FALSE, warning=FALSE
-idx_over = ciOverlap(cip, cim)
-
-table(idx_over)
-end.rcode-->
-
-<!--begin.rcode results='hide', echo=FALSE, message=FALSE, warning=FALSE
-idx_unequal = (n1p > 30 & n1m < 2) | (n1p < 3 & n1m > 30)
-ind_unequal = which(idx_unequal)
-
-sum(idx_unequal)
-end.rcode-->
-
-<!--begin.rcode results='hide', echo=FALSE, message=FALSE, warning=FALSE
-win = 35
-
-plotCis <- function(idx_show) {
-
-    pb1 = plotConfidenceIntervals(grb[idx_show])
-    pp1 = plotConfidenceIntervals(grp[idx_show])
-    pm1 = plotConfidenceIntervals(grm[idx_show])
-
-    t1 = tracks(both = pb1, plus = pp1, minus = pm1)
-
-    return(t1)
-}
-
-plotMm <- function(pos) {
-
-    ## mmplot
-    data0 = h5readBlock(filename = tallyFile, group = "/ExampleStudy/22", names = c("Coverages", "Counts", "Deletions"), range = c(pos-win, pos+win))
-    data0$Counts[c(1:4, 9:12), , , ] = 0
-
-    p1 = mismatchPlot(data = data0, sampledata = sampleData, samples = sampleData$Sample[c(2,5)], windowsize = win, position = pos) + theme_bw() + theme(legend.background = element_rect(color = "black", size = 0.1), strip.background = element_rect(fill = NA), legend.position = "none")
-
-    return(p1)
-}
-end.rcode-->
-</div>
-
-
-<div id="outline-container-sec-4-2-1" class="outline-4">
-<h4 id="sec-4-2-1"><span class="section-number-4">4.2.1</span> Case 1: Somatic variant</h4>
-<div class="outline-text-4" id="text-4-2-1">
-<p>
-The first example shows a potential heterozygous somatic variant, for which
-there is no evidence in the control sample.  While the mismatch frequencies differ
-slightly between the two strands, the overlap of the two confidence intervals
-indicate that there is no disagreement.
-</p>
-
-<!--begin.rcode echo=FALSE, message=FALSE, warning=FALSE
-i = 1
-idx_show = (ind_out[i]-win):(ind_out[i]+win)
-pos = start(gr)[ind_out[i]]
-end.rcode-->
-
-
-<!--begin.rcode warning=FALSE, fig.width=14, fig.height=7, fig.cap='Mismatch plot for case 1: Somatic variant', echo=FALSE
-p1 = plotMm(pos)
-print(p1)
-end.rcode-->
-
-
-<!--begin.rcode warning=FALSE, fig.width=14, fig.height=7, fig.cap='Confidence interval plot for case 1: Somatic variant', echo=FALSE
-t1 = plotCis(idx_show)
-print(t1)
-end.rcode-->
-</div>
-</div>
-
-
-<div id="outline-container-sec-4-2-2" class="outline-4">
-<h4 id="sec-4-2-2"><span class="section-number-4">4.2.2</span> Case 2: Absence of variants</h4>
-<div class="outline-text-4" id="text-4-2-2">
-<p>
-In contrast to the previous case does this region not show a somatic variant.
-The confidence intervals are all consistent with a somatic variant frequency of
-0, while the small width of them indicate the high certainty of the estimate and
-of the call of absence.
-</p>
-
-<!--begin.rcode echo=FALSE, message=FALSE, warning=FALSE
-idx = 1000
-idx_show = (idx-win):(idx+win)
-pos = start(gr)[idx]
-end.rcode-->
-
-
-<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Mismatch plot for case 2: Absence of a variant', echo=FALSE
-p2 = plotMm(pos)
-print(p2)
-end.rcode-->
-
-
-<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Confidence interval plot for case 2: Absence of a variant', echo=FALSE
-t2 = plotCis(idx_show)
-print(t2)
-end.rcode-->
-</div>
-</div>
-
-
-<div id="outline-container-sec-4-2-3" class="outline-4">
-<h4 id="sec-4-2-3"><span class="section-number-4">4.2.3</span> Case 3: Strand-specific mismatches</h4>
-<div class="outline-text-4" id="text-4-2-3">
-<p>
-In the third example region, mismatches are predominantly present on the minus
-strand.  This behaviour is also reflected in the confidence intervals, comparing
-the plus and the minus strand to each other.
-</p>
-
-<!--begin.rcode echo=FALSE, message=FALSE, warning=FALSE
-i = 2
-idx_show = (ind_out[i]-win):(ind_out[i]+win)
-pos = start(gr)[ind_out[i]]
-end.rcode-->
-
-
-<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Mismatch plot for case 3: Strand-specific mismatches', echo=FALSE
-p3 = plotMm(pos)  
-print(p3)
-end.rcode-->
-
-
-<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Confidence interval plot for case 3: Strand-specific mismatches', echo=FALSE
-t3 = plotCis(idx_show)
-print(t3)
-end.rcode-->
-</div>
-</div>
-
-
-<div id="outline-container-sec-4-2-4" class="outline-4">
-<h4 id="sec-4-2-4"><span class="section-number-4">4.2.4</span> Case 4: Strand-specific differences in sequencing depth</h4>
-<div class="outline-text-4" id="text-4-2-4">
-<p>
-The fourth region denotes a case with deviating sequencing depth between the
-strands, which can be observed at the border of exons in exon-sequencing
-datasets.  For the plus strand, the low statistical power is reflected in the
-wide confidence intervals.
-</p>
-
-<!--begin.rcode echo=FALSE, message=FALSE, warning=FALSE
-i = ind_unequal[10]
-idx_show = (i-win):(i+win)
-pos = start(gr)[i]
-end.rcode-->
-
-
-<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Mismatch plot for case 4: Strand-specific differences in sequencing depth', echo=FALSE
-p4 = plotMm(pos)
-print(p4)
-end.rcode-->
-
-
-<!--begin.rcode fig.width=14, fig.height=7, fig.cap='Confidence inteval plot for case 4: Strand-specific differences in sequencing depth', echo=FALSE
-t4 = plotCis(idx_show)
-print(t4)
+<!--begin.rcode fig.width=7, fig.height=7
+evidenceHeatmap(z, fill = "d", color = "verdict") + verdictColorScale()
 end.rcode-->
 </div>
 </div>
 </div>
-</div>
 
 
-<div id="outline-container-sec-5" class="outline-2">
-<h2 id="sec-5"><span class="section-number-2">5</span> Supplementary Information</h2>
-<div class="outline-text-2" id="text-5">
-</div><div id="outline-container-sec-5-1" class="outline-3">
-<h3 id="sec-5-1"><span class="section-number-3">5.1</span> Strand-specific analysis</h3>
-<div class="outline-text-3" id="text-5-1">
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Supplementary Information</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> Strand-specific analysis</h3>
+<div class="outline-text-3" id="text-4-1">
 <p>
 By comparing the confidence intervals between the two strands, we can further detect and
 characterize effects such as variations in sequencing depth and strand biases.
@@ -1256,9 +967,9 @@ both strands.
 </div>
 
 
-<div id="outline-container-sec-5-2" class="outline-3">
-<h3 id="sec-5-2"><span class="section-number-3">5.2</span> Statistical power and sequencing depth</h3>
-<div class="outline-text-3" id="text-5-2">
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> Statistical power and sequencing depth</h3>
+<div class="outline-text-3" id="text-4-2">
 <p>
 The statistical power, and thereby the width of the confidence interval, depends
 on the sequencing depths in both samples.  For the region harboring the variant
@@ -1280,9 +991,9 @@ end.rcode-->
 </div>
 
 
-<div id="outline-container-sec-5-3" class="outline-3">
-<h3 id="sec-5-3"><span class="section-number-3">5.3</span> Assessing performance of confidence interval methods</h3>
-<div class="outline-text-3" id="text-5-3">
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3"><span class="section-number-3">4.3</span> Assessing performance of confidence interval methods</h3>
+<div class="outline-text-3" id="text-4-3">
 <p>
 As outlined before, an important property for assessing confidence intervals is
 given by their coverage probabilities.  Ideally, we would expect a method to
@@ -1328,9 +1039,9 @@ shows a conservative perfomance.
 </div>
 
 
-<div id="outline-container-sec-5-4" class="outline-3">
-<h3 id="sec-5-4"><span class="section-number-3">5.4</span> Benchmarking of performance and resources</h3>
-<div class="outline-text-3" id="text-5-4">
+<div id="outline-container-sec-4-4" class="outline-3">
+<h3 id="sec-4-4"><span class="section-number-3">4.4</span> Benchmarking of performance and resources</h3>
+<div class="outline-text-3" id="text-4-4">
 <p>
 For an analysis of two matched human tumor samples, we performed a benchmark to
 assess the computational time and memory usage on a standard laptop (Thinkpad
@@ -1349,12 +1060,12 @@ computational efficiency will increase with newer versions.
 
 
 
-<div id="outline-container-sec-6" class="outline-2">
-<h2 id="sec-6"><span class="section-number-2">6</span> Frequently Asked Questions</h2>
-<div class="outline-text-2" id="text-6">
-</div><div id="outline-container-sec-6-1" class="outline-3">
-<h3 id="sec-6-1"><span class="section-number-3">6.1</span> Getting help</h3>
-<div class="outline-text-3" id="text-6-1">
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Frequently Asked Questions</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1"><span class="section-number-3">5.1</span> Getting help</h3>
+<div class="outline-text-3" id="text-5-1">
 <p>
 We welcome emails with questions or suggestions about our software, and want to
 ensure that we eliminate issues if and when they appear.  We have a few requests
@@ -1391,9 +1102,9 @@ full output of <code>sessionInfo()</code>.
 
 
 
-<div id="outline-container-sec-6-2" class="outline-3">
-<h3 id="sec-6-2"><span class="section-number-3">6.2</span> Installing the package</h3>
-<div class="outline-text-3" id="text-6-2">
+<div id="outline-container-sec-5-2" class="outline-3">
+<h3 id="sec-5-2"><span class="section-number-3">5.2</span> Installing the package</h3>
+<div class="outline-text-3" id="text-5-2">
 <p>
 Before you want to install the <code>Rariant</code> package, please ensure that
 you have the latest version of <code>R</code> and <code>Bioconductor</code> installed.  For details on
@@ -1411,9 +1122,9 @@ end.rcode-->
 </div>
 
 
-<div id="outline-container-sec-7" class="outline-2">
-<h2 id="sec-7"><span class="section-number-2">7</span> References</h2>
-<div class="outline-text-2" id="text-7">
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> References</h2>
+<div class="outline-text-2" id="text-6">
 <div id="bibliography">
 <h2>References</h2>
 
@@ -1708,9 +1419,9 @@ Paul&nbsp;Theodor Pyl, Julian Gehring, Bernd Fischer, and Wolfgang Huber.
 </div>
 
 
-<div id="outline-container-sec-8" class="outline-2">
-<h2 id="sec-8"><span class="section-number-2">8</span> Session Info</h2>
-<div class="outline-text-2" id="text-8">
+<div id="outline-container-sec-7" class="outline-2">
+<h2 id="sec-7"><span class="section-number-2">7</span> Session Info</h2>
+<div class="outline-text-2" id="text-7">
 <!--begin.rcode echo=FALSE, results='markup'
 sessionInfo()
 end.rcode-->
