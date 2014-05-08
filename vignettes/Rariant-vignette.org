@@ -44,7 +44,8 @@
   opts_chunk$set(comment = "  ",
                  fig.path = "",
                  fig.align = "center",
-                 out.width = "90%",
+                 out.width = "100%",
+                 dpi = 300,
                  indent = 10,
                  cache = FALSE,
                  cache.path = "../cache")
@@ -313,7 +314,9 @@ frequencies between two samples at each genomic position individually:
 
 * Workflow
 
-In the following, we show a complete workflow for identifying SNVs from aligned
+** AML Exome Sequencing
+
+In the following, we will show a complete workflow for identifying SNVs from aligned
 short reads.  For illustration purposes, we will focus on data from a whole
 exome sequencing (WES) study, as part of the =h5vcData= package
 [[cite:pyl_h5vcdata:_2013]], covering a subset of the NRAS gene.
@@ -328,7 +331,7 @@ exome sequencing (WES) study, as part of the =h5vcData= package
 #+END_SRC
 
 
-** The data set
+*** The data set
 
 We compare an AML tumor sample with the matching control sample of a single
 patient, starting with the alignments stored in =BAM= files.  Here, we will use
@@ -350,7 +353,7 @@ further define our region of interest.
 #+END_SRC
 
 
-** Identifying variant sites
+*** Identifying variant sites
 
 Variant sites can be identified with the =rariant= function.  As input, we
 specify the alignment files for the test and control sample.  In case that we
@@ -377,7 +380,7 @@ settings used for excluding low quality base calls to reduce false positives.
 The defaults are suited for current Illumina sequencing data sets.
 
 
-** Interpreting the results
+*** Interpreting the results
 
 The columns of the =GRanges= object returned by =rariant= summarizes the
 evidence for the presence or absence of a variant:
@@ -405,7 +408,7 @@ evidence for the presence or absence of a variant:
      respective event types
 
 
-** Exploratory variant analysis
+*** Exploratory variant analysis
 
 By default, only identified variants are returned.  We can also obtain the
 results for all sites in our region of interest with =select = FALSE=.  This
@@ -419,7 +422,7 @@ a variant or comparing calls between samples.
 #+END_SRC
 
 
-** Summarizing and visualizing results
+*** Summarizing and visualizing results
 
 Sites harboring potential biological variants can be identified by confidence
 intervals that reject non-consensus frequencies shifts of 0.  The =ciOutside=
@@ -474,7 +477,7 @@ depth]].
 #+END_SRC
 
 
-** Interactive variant analysis
+*** Interactive variant analysis
 
 With the =rariantInspect= interface, the results of the =rariant= can be
 explored interactively in the web browser.  Since we cannot demonstrate this in
@@ -495,9 +498,8 @@ tables can be displayed conveniently and split according to multiple criteria.
 [[file:rariant-inspect-shift.png]]
 
 
-* Example Cases
 
-** 1000 Genomes Simulation Study
+** Multip Sample Simulation Study
 
 We want to further demostrate the usage and abilities of the =Rariant= package
 on a real-life data set.  Due to legal and privacy issues, most human cancer
@@ -531,46 +533,43 @@ by combining their reads.
   mix_bam = system.file("extdata", "mix.bam", package = "Rariant", mustWork = TRUE)
 #+END_SRC
 
-
 #+BEGIN_SRC R
   v_test1 = rariant(test1_bam, control_bam, tp53_region, select = FALSE)
   v_test2 = rariant(test2_bam, control_bam, tp53_region, select = FALSE)
   v_mix = rariant(mix_bam, control_bam, tp53_region, select = FALSE)
 #+END_SRC
 
-In the following, we look at positions which showed a significant effect in at
-least one sample.  This gives us 12 positions to consider in the following.
-
 #+BEGIN_SRC R
-  poi = unique(c(v_test1[ciOutside(v_test1)], v_test2[ciOutside(v_test2)], v_mix[ciOutside(v_mix)]))
+  v_all = GenomicRangesList(T1 = v_test1, T2 = v_test2, M = v_mix)
 
-  length(poi)
-
-  head(poi)
+  v_all = endoapply(v_all, updateCalls)
 #+END_SRC
-
-
-#+BEGIN_SRC R
-  v_poi1 = v_test1[v_test1 %in% poi]
-  v_poi2 = v_test2[v_test2 %in% poi]
-  v_poi3 = v_mix[v_mix %in% poi]
-#+END_SRC
-
 
 To better understand the evidence for the presence or absence of
 particular variants across samples, we plot the confidence intervals, colored
 according to the predicted event type, and abundance shifts for all sites of
 interest, colored according to the sign of the shift.
 
-#+BEGIN_SRC R :exports both :results output graphics :file platinum-ci-tracks.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Confidence intervals for simulation study'
-  py1 = plotConfidenceIntervals(v_poi1, color = "eventType")
-  py2 = plotConfidenceIntervals(v_poi2, color = "eventType")
-  py3 = plotConfidenceIntervals(v_poi3, color = "eventType")
+#+BEGIN_SRC R :exports both :results output graphics :file platinum-ci-tracks-verdict.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Confidence intervals for simulation study'
+  t_ci = tracks(lapply(v_all, plotConfidenceIntervals, color = "verdict")) + verdictColorScale()
 
-  t = tracks(py1, py2, py3)
-
-  print(t)
+  print(t_ci)
 #+END_SRC
+
+#+BEGIN_SRC R :exports both :results output graphics :file platinum-ci-tracks-event.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Confidence intervals for simulation study'
+  t_ci = tracks(lapply(v_all, plotConfidenceIntervals, color = "eventType"))
+
+  print(t_ci)
+#+END_SRC
+
+#+BEGIN_SRC R :exports both :results output graphics :file platinum-shift-tracks.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Abundance shifts for simulation study'
+  t_rates = tracks(lapply(v_all, plotAbundanceShift))
+
+  print(t_rates)
+#+END_SRC
+
+In the following, we look at positions which showed a significant effect in at
+least one sample.  This gives us 12 positions to consider in the following.
 
 While most of the variants are somatic, i.e. they do not appear in the control
 sample, the last variant position shows a loss of a heterozygous SNP.  Looking
@@ -584,18 +583,18 @@ some clones carry a somatic variant and others not.  Further, we can also see
 the case of the next variant which consistently exists in all three samples with
 the same abundance.
 
-#+BEGIN_SRC R :exports both :results output graphics :file platinum-shift-tracks.svg :session *R-devel* :width 14 :height 7 :ravel warning=FALSE :ravel fig.width=14, fig.height=7, fig.cap='Abundance shifts for simulation study'
-  pa1 = plotAbundanceShift(v_poi1)
-  pa2 = plotAbundanceShift(v_poi2)
-  pa3 = plotAbundanceShift(v_poi3)
+#+BEGIN_SRC R
+  z = filterCalls(v_all, verdict %in% c("present", "inbetween", "dontknow"))
 
-  t2 = tracks(pa1, pa2, pa3)
+  elementLengths(z)
+#+END_SRC
 
-  print(t2)
+#+BEGIN_SRC R :exports both :results output graphics :file platinum-compare-heat1.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7
+  evidenceHeatmap(z, fill = "d", color = "verdict") + verdictColorScale()
 #+END_SRC
 
 
-** AML Genome Sequencing
+** AML Genome Sequencing                                          :noexport:
 
 To illustrate typical cases that can be distinguished with the proposed methodology
 on real data, we investigate a tumor/normal comparison of a single patient as
@@ -1078,7 +1077,6 @@ The analysis steps can be summarized as:
   library(GenomicRanges)
   library(ggbio)
   library(ggplot2)
-  library(biovizBase)
 #+END_SRC
 
 

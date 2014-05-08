@@ -1,36 +1,29 @@
-combineCalls <- function(l) {
+## what is it good for?
+.combineCalls <- function(...) {
+    l = GenomicRangesList(...)
     sample_names = names(l)
     if(is.null(sample_names))
         sample_names = as.character(seq_along(l))
     return(l)
 }
 
-#data = Rariant:::exampleCalls()
-
-yesNoMaybe <- function(x, null = 0, one = 0.5) {
-    is_null = ciCovers(x, null) | ciCovers(x, -null)
-    is_one = ciCovers(x, one) | x$lower > one | ciCovers(x, -one) | x$upper < -one
-    is_both = is_null & is_one
-    is_none = !is_null & !is_one
-    out = rep(NA_character_, length(x))
-    lvs = c("absent", "present", "dontknow", "inbetween")
-    out[is_null] = 1L
-    out[is_one] = 2L
-    out[is_both] = 3L
-    out[is_none] = 4L
-    out = factor(out)
-    levels(out) = lvs
-    return(out)
-}
-
-eventFillScale <- function() {
-    values = c(somatic = "#fc8d62", hetero = "#e78ac3", undecided = "#8da0cb", powerless = "#a6d854", none = "white")
-    return(scale_fill_manual(values = values))
-}
-
-verdictColorScale <- function() {
-    values = c(present = "#fc8d62", inbetween = "#8da0cb", dontknow = "#a6d854", absent = "lightgray")
-    return(scale_color_manual(values = values))
+mergeCalls <- function(x) {
+    sample_names = names(x)
+    if(is.null(sample_names))
+        sample_names = as.character(seq_along(x))
+    f <- function(x) {
+        x1 = as(x, "data.frame")
+        x1$n = 1:nrow(x1)
+        x1$outside = ciOutside(x1)
+        return(x1)
+    }
+    lx = lapply(x, f)
+    z = do.call(rbind, lx)
+    #z = rbind_all(lx)
+    ## Has problems if corresponding colums have different types
+    z$sample = factor(rep(sample_names, elementLengths(x)),
+        levels = sample_names)
+    return(z)
 }
 
 updateCalls <- function(x, ...) {
@@ -39,9 +32,19 @@ updateCalls <- function(x, ...) {
     return(x)
 }
 
-filterCalls <- function(x, ..., minCount) {
-    idx = sapply(x, function(y, ...) {y %in% subset(y, ...)}, ...)
-    if(!missing(minCount))
-        idx = rowSums(idx) >= minCount
-    return(idx)
+filterCalls <- function(x, ..., minCount = 1) {
+    ind = findCalls(x, ..., minCount = minCount)
+    y = endoapply(x, "[", ind)
+    return(y)
+}
+
+findCalls <- function(x, ..., minCount = 1) {
+    idx_tab= sapply(x, function(y, ...) {y %in% subset(y, ...)}, ...)
+    ind = which(rowSums(idx_tab) >= minCount)
+    return(ind)
+}
+
+checkCalls <- function(x) {
+    ns = elementLengths(x)
+    stopifnot(length(unique(ns)) == 1)
 }
