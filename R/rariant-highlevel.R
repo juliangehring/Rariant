@@ -27,7 +27,7 @@ writeRariant <- function(x, file, ...) {
 classifyEvent <- function(x, alpha = 1e-3, offset = 0.5) {
 
     pval_null = binomTestPval(pmin(x$controlMismatch, x$controlDepth-x$controlMismatch),
-        x$controlDepth, offset/x$controlDepth, "greater")
+        x$controlDepth, offset/(x$controlDepth+offset), "greater")
     pvalHetero = binomTestPval(x$controlMismatch, x$controlDepth, 0.5, "both")
     padj_null = p.adjust(pval_null, "BH")
     padjHetero = p.adjust(pvalHetero, "BH")
