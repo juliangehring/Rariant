@@ -64,9 +64,9 @@
 
   region = GRanges("chr17", IRanges(7572100, width = 1))
 
-  control_bam = system.file("extdata", "control.bam", package =
+  control_bam = system.file("extdata", "platinum", "control.bam", package =
   "Rariant", mustWork = TRUE)
-  mix_bam = system.file("extdata", "mix.bam", package = "Rariant",
+  mix_bam = system.file("extdata", "platinum", "mix.bam", package = "Rariant",
   mustWork = TRUE)
 
   bam_files = c(control_bam, mix_bam)
@@ -78,13 +78,13 @@
 
   region = GRanges("chr17", IRanges(7572050, width = 100))
 
-  control_bam = system.file("extdata", "control.bam", package =
+  control_bam = system.file("extdata", "platinum", "control.bam", package =
     "Rariant", mustWork = TRUE)
-  test1_bam = system.file("extdata", "test.bam", package =
+  test1_bam = system.file("extdata", "platinum", "test.bam", package =
     "Rariant", mustWork = TRUE)
-  test2_bam = system.file("extdata", "test2.bam", package =
+  test2_bam = system.file("extdata", "platinum", "test2.bam", package =
     "Rariant", mustWork = TRUE)
-  mix_bam = system.file("extdata", "mix.bam", package =
+  mix_bam = system.file("extdata", "platinum", "mix.bam", package =
     "Rariant", mustWork = TRUE)
 
   bam_files = c(control_bam, test1_bam, test2_bam, mix_bam)

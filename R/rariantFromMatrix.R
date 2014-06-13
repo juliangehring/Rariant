@@ -29,10 +29,14 @@ rariantFromMatrix <- function(
         ## ignore:
         ## 1. no coverage in any sample
         ## 2. NAs
-        idx_good = dx$testDepth > 0 & dx$controlDepth > 0 & !is.na(dx$testDepth) & !is.na(dx$controlDepth) & !is.na(dx$testMismatch) & !is.na(dx$controlMismatch)
+        ## 3. No mismatches in both samples (no chance for a change)
+        ## not optimal in terms of speed, but okay
+        idx_depth = dx$testDepth > 0 & dx$controlDepth > 0 & !is.na(dx$testDepth) & !is.na(dx$controlDepth)
+        idx_mismatch = !is.na(dx$testMismatch) & !is.na(dx$controlMismatch) & (dx$testMismatch > 0 | dx$contolMismatch > 0)
+        idx_good = idx_depth & idx_mismatch
         if(!any(idx_good))
             ## go on if nothing is left
-            next
+            return(NULL)
         dx = dx[idx_good, ]
     }
     

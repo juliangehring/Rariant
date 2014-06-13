@@ -52,3 +52,28 @@ test_that("'readRariant/writeRariant' works", {
     expect_equal(names(mcols(vars_all)), names(mcols(r)))
     
 })
+
+
+context("tally")
+
+test_that("'tallyBamRegion/tallyBamPart' works", {
+
+    ## tallyBamRegion
+    control_bam = system.file("extdata", "NRAS.Control.bam", package = "h5vcData", mustWork = TRUE)
+    roi = GRanges("1", IRanges(start = 115258439, end = 115259089))
+
+    dn = c(width(roi), 4, 2)
+
+    tally1 = tallyBamRegion(control_bam, roi)
+
+    tally2 = tallyBamPart(control_bam, as.character(seqnames(roi)), start(roi), end(roi))
+
+    expect_is(tally1, "array")
+    expect_is(tally2, "array")
+
+    expect_equal(dim(tally1), dn)
+    expect_equal(dim(tally2), dn)
+
+    expect_identical(tally1, tally2)
+        
+})

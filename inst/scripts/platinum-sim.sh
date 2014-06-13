@@ -1,7 +1,7 @@
 #!/bin/sh
-tp53_region="chr17:7571720-7590863"
+tp53_region="chr17:7565097-7590856"
 bam_dir="/ebi/research/huber/users/jgehring/projects/39-error-profiles/data/platinum/align/"
-out_dir="/ebi/research/huber/users/jgehring/projects/38-rarient/package/Rariant/inst/platinum/"
+out_dir="/ebi/research/huber/users/jgehring/projects/38-rarient/package/Rariant/inst/extdata/platinum/"
 
 ## control
 samtools view -bh -q 5 ${bam_dir}/NA12877_S1.bam ${tp53_region} > ${out_dir}/control.bam

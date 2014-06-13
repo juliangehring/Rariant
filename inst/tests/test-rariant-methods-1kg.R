@@ -4,11 +4,11 @@ library(GenomicRanges)
 library(ggbio)
 library(Rsamtools)
 
-region = GRanges("chr17", IRanges(7571720, 7590863))
+region = GRanges("chr17", IRanges(7565097, 7590856))
 
 ## bam files
-control_bam = system.file("extdata", "control.bam", package = "Rariant", mustWork = TRUE)
-test1_bam = system.file("extdata", "test.bam", package = "Rariant", mustWork = TRUE)
+control_bam = system.file("extdata", "platinum", "control.bam", package = "Rariant", mustWork = TRUE)
+test1_bam = system.file("extdata", "platinum", "test.bam", package = "Rariant", mustWork = TRUE)
 
 context("rariant-methods")
 

@@ -1,7 +1,8 @@
-\name{tallyBamRegion}
+\name{tallyBam}
 
 \alias{tallyBamRegion}
-                
+\alias{tallyBamPart}              
+
 \title{Tally a genomic region}
 
 \description{
@@ -13,6 +14,8 @@
 
 \usage{
   tallyBamRegion(file, region, nCycles = 0, minQual = 0)
+
+  tallyBamPart(file, chrom, start, end, nCycles = 0, minQual = 0)
 }
 
 
@@ -22,6 +25,9 @@
 
   \item{region}{GRanges with the region to tally, with one entry.}
 
+  \item{chrom, start, end}{Alternative to a 'GRanges' input, the
+    chromosome, start, and end positon.}
+
   \item{nCycles}{Number of sequencing cycles to remove from the
     beginning and end of each read when creating the base count
     table. This avoids low quality read positions [default: 0].}
@@ -29,6 +35,14 @@
   \item{minQual}{Minimum base call quality for reads to be considered
     for the nucleotide count table [default: 0]. Reads with a lower
     quality are dropped.}
+
+}
+
+
+\details{
+
+  For details, look at the documentation of the underlying 'tallyBAM'
+  function in the 'h5vc' package.
 
 }
 
