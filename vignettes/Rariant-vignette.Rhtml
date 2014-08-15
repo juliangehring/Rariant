@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>Comparative Identification and Assessment of Single Nucleotide Variants Through Shifts in Base Call Frequencies</title>
-<!-- 2014-06-06 Fr 15:54 -->
+<!-- 2014-08-14 Do 20:52 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Julian Gehring, Simon Anders, Bernd Klaus (EMBL Heidelberg)" />
@@ -236,7 +236,7 @@ Extending the scope of comparative variant analyses in a cancer related setting
 may require an accompanying change in definitions.  In the classical tumor
 versus normal setting, a <i>somatic</i> event is characterized by both the presence
 of the variant in the tumor and the absence in the matched normal
-[<a href="#roberts_comparative_2013">17</a>].  This definition is not satisfactory for
+[<a href="#roberts_comparative_2013">16</a>].  This definition is not satisfactory for
 comparing different tumor stages against each other.  If we imagine two stages
 of a tumor haboring multiple subclones, variants may be present in both stages
 with changing abundances.  Here, the classical definition of a <i>somatic</i> variant
@@ -249,7 +249,7 @@ control constitutes a special case of this.
 <p>
 Numerous approaches focus on more narrowly defined somatic comparisons,
 motivated by scientific questions in the field of cancer genomics
-[<a href="#kim_comparing_2013">16</a>] [<a href="#roberts_comparative_2013">17</a>].  Most existing methods 
+[<a href="#kim_comparing_2013">15</a>] [<a href="#roberts_comparative_2013">16</a>].  Most existing methods 
 do not allow an explicit statement about the evidence for the absence of a
 putative variant in a sample, and a clear distinction is needed whether a <i>negative</i> call
 results from a true negative site or the lack of statistical power to detect it.
@@ -343,7 +343,7 @@ frequency.  Thus, positions not haboring biological alterations will result in
 Distinguishing biological variants from noise requires knowledge
 about the variance of the point estimate \(\hat{d_{i}}\).  By constructing a
 confidence interval (CI) for \(d_{i}\) with confidence level \(\beta\)
-[<a href="#agresti_categorical_2013">15</a>], we assess the certainty of the estimated shift in
+[<a href="#agresti_categorical_2013">14</a>], we assess the certainty of the estimated shift in
 non-consensus frequencies.  The probability of the true value being outside the
 confidence interval is less than \(\alpha = 1 - \beta\).  This is in concordance
 with the type I or \(\alpha\) error definition in statistical testing.
@@ -353,7 +353,7 @@ with the type I or \(\alpha\) error definition in statistical testing.
 Under the assumption that the non-consensus counts \(K^{S}_{i}\) in our samples
 follow binomial distributions with parameters \(p^{S}_{i}\) and \(N^{S}_{i}\),
 several methods have been established for estimating confidence intervals for
-the difference of two rate parameters [<a href="#fleiss_statistical_2013">13</a>]
+the difference of two rate parameters [<a href="#fleiss_statistical_2013">12</a>]
 [<a href="#fagerland_recommended_2011">7</a>].  The performance of an approach is generally
 described in terms of its coverage probability indicating the probability of a
 confidence interval to cover the true value (see <a href="#sec-4-2">4.2</a>).  Coverage probabilities greater and less than the
@@ -658,6 +658,7 @@ end.rcode-->
 </div>
 </div>
 </div>
+
 
 
 <div id="outline-container-sec-4" class="outline-2">
@@ -1031,20 +1032,7 @@ Lucy&nbsp;R. Yates and Peter&nbsp;J. Campbell.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="pyl_h5vcdata:_2013">12</a>]
-</td>
-<td class="bibtexitem">
-Paul&nbsp;Theodor Pyl.
- h5vcData: example data for the h5vc package, 2013.
-[&nbsp;<a href="http://bioconductor.org/packages/release/data/experiment/html/h5vcData.html">.html</a>&nbsp;]
-
-</td>
-</tr>
-
-
-<tr valign="top">
-<td align="right" class="bibtexnumber">
-[<a name="fleiss_statistical_2013">13</a>]
+[<a name="fleiss_statistical_2013">12</a>]
 </td>
 <td class="bibtexitem">
 Joseph&nbsp;L. Fleiss, Bruce Levin, and Myunghee&nbsp;Cho Paik.
@@ -1058,7 +1046,7 @@ Joseph&nbsp;L. Fleiss, Bruce Levin, and Myunghee&nbsp;Cho Paik.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="decrouez_split_2013">14</a>]
+[<a name="decrouez_split_2013">13</a>]
 </td>
 <td class="bibtexitem">
 Geoffrey Decrouez and Peter Hall.
@@ -1075,7 +1063,7 @@ Geoffrey Decrouez and Peter Hall.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="agresti_categorical_2013">15</a>]
+[<a name="agresti_categorical_2013">14</a>]
 </td>
 <td class="bibtexitem">
 Alan Agresti.
@@ -1088,7 +1076,7 @@ Alan Agresti.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="kim_comparing_2013">16</a>]
+[<a name="kim_comparing_2013">15</a>]
 </td>
 <td class="bibtexitem">
 Su&nbsp;Y. Kim and Terence&nbsp;P. Speed.
@@ -1104,7 +1092,7 @@ Su&nbsp;Y. Kim and Terence&nbsp;P. Speed.
 
 <tr valign="top">
 <td align="right" class="bibtexnumber">
-[<a name="roberts_comparative_2013">17</a>]
+[<a name="roberts_comparative_2013">16</a>]
 </td>
 <td class="bibtexitem">
 Nicola&nbsp;D. Roberts, R.&nbsp;Daniel Kortschak, Wendy&nbsp;T. Parker, Andreas&nbsp;W. Schreiber,
@@ -1115,22 +1103,6 @@ Nicola&nbsp;D. Roberts, R.&nbsp;Daniel Kortschak, Wendy&nbsp;T. Parker, Andreas&
  PMID: 23842810.
 [&nbsp;<a href="http://dx.doi.org/10.1093/bioinformatics/btt375">DOI</a>&nbsp;| 
 <a href="http://bioinformatics.oxfordjournals.org/content/29/18/2223">http</a>&nbsp;]
-
-</td>
-</tr>
-
-
-<tr valign="top">
-<td align="right" class="bibtexnumber">
-[<a name="pyl_h5vc:_2014">18</a>]
-</td>
-<td class="bibtexitem">
-Paul&nbsp;Theodor Pyl, Julian Gehring, Bernd Fischer, and Wolfgang Huber.
- h5vc: Scalable nucleotide tallies with HDF5.
- <em>Bioinformatics</em>, page btu026, January 2014.
- PMID: 24451629.
-[&nbsp;<a href="http://dx.doi.org/10.1093/bioinformatics/btu026">DOI</a>&nbsp;| 
-<a href="http://bioinformatics.oxfordjournals.org/content/early/2014/01/21/bioinformatics.btu026">http</a>&nbsp;]
 
 </td>
 </tr>

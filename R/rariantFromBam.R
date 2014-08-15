@@ -29,8 +29,8 @@ rariantFromBam <- function(test, control, region, beta = 0.95, alpha = 1 - beta,
         roi = chunks[i]
         n = width(roi)
 
-        test_tally = tallyBamRegion(path(test), roi, nCycles, minQual)
-        control_tally = tallyBamRegion(path(control), roi, nCycles, minQual)
+        test_tally = tallyBamRegion(test, roi, nCycles, minQual)
+        control_tally = tallyBamRegion(control, roi, nCycles, minQual)
 
         rar = rariantFromMatrix(test_tally, control_tally, roi, beta, alpha, select, consensus, strand, criteria)
 

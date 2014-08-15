@@ -1,16 +1,16 @@
 Package: Rariant
 Type: Package
 Title: Identification and Assessment of Single Nucleotide Variants through Shifts in Non-Consensus Base Call Frequencies
-Version: 1.1.19
+Version: 1.1.21
 Author: Julian Gehring, Simon Anders, Bernd Klaus (EMBL Heidelberg)
 Maintainer: Julian Gehring <julian.gehring@embl.de>
-Imports: IRanges, ggbio, ggplot2, VariantAnnotation, h5vc, exomeCopy, SomaticSignatures, Rsamtools, shiny, methods, VGAM, dplyr, reshape2
-Depends: R (>= 3.0.2), GenomicRanges
+Imports: IRanges, ggbio, ggplot2, exomeCopy, SomaticSignatures, Rsamtools, shiny, methods, VGAM, dplyr, reshape2, GenomeInfoDb, S4Vectors
+Depends: R (>= 3.0.2), GenomicRanges, VariantAnnotation
 Suggests: h5vcData, testthat, knitr, optparse, BSgenome.Hsapiens.UCSC.hg19
 Description: The 'Rariant' package identifies single nucleotide variants from sequencing data based on the difference of binomially distributed mismatch rates between matched samples.
 VignetteBuilder: knitr
 Encoding: UTF-8
-ByteCompile: FALSE
+ByteCompile: TRUE
 License: GPL-3
 LazyLoad: yes
 biocViews: Sequencing, StatisticalMethod, GenomicVariation, SomaticMutation, VariantDetection, Visualization

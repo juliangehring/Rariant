@@ -1,7 +1,6 @@
 \name{tallyBam}
 
 \alias{tallyBamRegion}
-\alias{tallyBamPart}              
 
 \title{Tally a genomic region}
 
@@ -13,28 +12,21 @@
 }
 
 \usage{
-  tallyBamRegion(file, region, nCycles = 0, minQual = 0)
-
-  tallyBamPart(file, chrom, start, end, nCycles = 0, minQual = 0)
+  tallyBamRegion(bam, region, minBase = 0, minMap = 0, maxDepth = 10000)
 }
 
 
 \arguments{
 
-  \item{file}{BAM file path}
+  \item{bam}{BAM file}
 
   \item{region}{GRanges with the region to tally, with one entry.}
 
-  \item{chrom, start, end}{Alternative to a 'GRanges' input, the
-    chromosome, start, and end positon.}
+  \item{minBase, minMap}{Minimum base call and mapping quality for reads
+    to be considered for the nucleotide count table [default: 0]. Reads
+    with a lower quality are dropped.}
 
-  \item{nCycles}{Number of sequencing cycles to remove from the
-    beginning and end of each read when creating the base count
-    table. This avoids low quality read positions [default: 0].}
-  
-  \item{minQual}{Minimum base call quality for reads to be considered
-    for the nucleotide count table [default: 0]. Reads with a lower
-    quality are dropped.}
+  \item{maxDepth}{Maximal sequencing depth to analyze.}
 
 }
 
@@ -65,6 +57,6 @@
 
 \seealso{
 
-  h5vc::tallyBAM, deepSNV::bam2R
+  h5vc::tallyBAM, deepSNV::bam2R, Rsamtools::pileup
   
 }

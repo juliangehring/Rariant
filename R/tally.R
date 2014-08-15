@@ -1,9 +1,9 @@
-comparativeMismatch <- function(test_tally, control_tally, strand = c("both", "plus", "minus"), consensus, roi) {
+comparativeMismatch <- function(test_counts, control_counts, strand = c("both", "plus", "minus"), consensus, roi) {
 
-    strand = match.arg(strand)
+    #strand = match.arg(strand)
 
-    test_counts = selectStrand(test_tally, strand)
-    control_counts = selectStrand(control_tally, strand)
+    #test_counts = selectStrand(test_tally, strand)
+    #control_counts = selectStrand(control_tally, strand)
     
     testDepth = seqDepth(test_counts)
     controlDepth = seqDepth(control_counts)
@@ -25,7 +25,7 @@ comparativeMismatch <- function(test_tally, control_tally, strand = c("both", "p
     testMismatch = mismatchCount(test_counts, ref_base, testDepth)
     testMismatch[is.na(testMismatch)] = 0
         
-    n = nrow(test_tally)
+    n = nrow(test_counts)
     ## depth of the consensus allele in test
     refDepth = test_counts[mat2ind(ref_base, n)]
     refDepth[is.na(refDepth)] = 0
@@ -87,63 +87,42 @@ mismatchCount <- function(counts, consensus, depth = rowSums(counts)) {
 }
 
 
-#resolveConsensus <- function(..., method = c("ref", "min")) {    
-#    method = match.arg(method)
-#    idx_amb = is.na(control_base)
-#    if(any(idx_amb)) {
-#        if(method == "min") {        
-#            ter = sapply(seq_along(idx_bases),
-#                function(i, r, c) {mismatchCount(r, i, c)},
-#                test_counts[idx_amb, ], test_cov[idx_amb])
-#            control_base[idx_amb] = callConsensus(-ter)
-#        }
-#        if(method == "ref") {
-#            control_base[idx_amb] = ref_base[idx_amb]
-#        }
-#    }
-#}
-
 dna_bases <- function() {
     res = c("A", "C", "G", "T", "N")
     names(res) = res
     return(res)
 }
+tallyBamRegion <- function(bam, region, minBase = 0, minMap = 0, maxDepth = 1e4) {
 
+    if(length(region) > 1)
+        stop("Region must be of length 1.")
 
-tallyBamRegion <- function(file, region, nCycles = 0, minQual = 0) {
+    ## params
+    pp = PileupParam(
+        max_depth = maxDepth,
+        min_base_quality = minBase,
+        min_mapq = minMap,
+        min_nucleotide_depth = 0,
+        min_minor_allele_depth = 0,
+        distinguish_strands = FALSE,
+        distinguish_nucleotides = TRUE,
+        ignore_query_Ns = FALSE,
+        include_deletions = FALSE)
 
-    tally = tallyBAM(file,
-        chr = as.character(seqnames(region)),
-        start = start(region), stop = end(region),
-        q = minQual, ncycles = nCycles)
-    ## only HQ counts
-    tally = aperm(tally[5:8, , ,drop=FALSE], c(3, 1, 2)) ## dont drop if only one pos
-    dimnames(tally) = list(position = NULL,
-                base = c("A", "C", "G", "T"),
-                strand = c("+", "-"))
+    sb = ScanBamParam(which = region)
 
-    return(tally)
+    t2 = pileup(bam, scanBamParam = sb, pileupParam = pp)
+
+    ## to matrix
+    m = matrix(0L, width(region), 4)
+    colnames(m) = levels(t2$nucleotide)[1:4]
+    idx_col = as.integer(t2$nucleotide)
+    if(any(idx_col > 4)) {
+        #warning("Skipping non-standard bases")
+        t2 = t2[idx_col <= 4, ]
+        idx_col = idx_col[idx_col <= 4]
+    }
+    m[cbind(t2$pos-start(region)+1, idx_col)] = t2$count
+
+    return(m)
 }
-
-
-tallyBamPart <- function(file, chrom, start, end, nCycles = 0, minQual = 0) {
-
-    tally = tallyBAM(file,
-        chr = chrom,
-        start = start, stop = end,
-        q = minQual, ncycles = nCycles)
-    ## only HQ counts
-    tally = aperm(tally[5:8, , ,drop=FALSE], c(3, 1, 2)) ## dont drop if only one pos
-    dimnames(tally) = list(position = NULL,
-                base = c("A", "C", "G", "T"),
-                strand = c("+", "-"))
-
-    return(tally)
-}
-
-
-#tallyVariants <- function(bams, region, genome, ...) {
-#    
-#    ref_seq = getSeq(genome, region)
-#    tally = tallyBamRegion(bams, region, ...)
-#}

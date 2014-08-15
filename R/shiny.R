@@ -47,7 +47,7 @@ rariantInspect <- function(x) {
             roi = GRanges(input$chr, IRanges(input$start, input$end))
             res = subsetByOverlaps(res, roi)
             res
-        })            
+        })       
         output$ci_plot = renderPlot({
             print(plotConfidenceIntervals(data(), color = "eventType")) # + scale_color_hue(drop = FALSE) ## import
         })
