@@ -21,7 +21,7 @@ mergeCalls <- function(x) {
     z = do.call(rbind, lx)
     #z = rbind_all(lx)
     ## Has problems if corresponding colums have different types
-    z$sample = factor(rep(sample_names, elementLengths(x)),
+    z$sample = factor(rep(sample_names, elementNROWS(x)),
         levels = sample_names)
     return(z)
 }
@@ -45,6 +45,6 @@ findCalls <- function(x, ..., minCount = 1) {
 }
 
 checkCalls <- function(x) {
-    ns = elementLengths(x)
+    ns = elementNROWS(x)
     stopifnot(length(unique(ns)) == 1)
 }

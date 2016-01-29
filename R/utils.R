@@ -4,7 +4,7 @@ binGRanges <- function(x, size, method = c("exact", "equal"), trim = FALSE) {
     if(method == "exact") {
         ranges = mapply(seq, start(x), end(x), MoreArgs = list(by = size), SIMPLIFY = FALSE)
         names(ranges) = as.character(seqnames(x))
-        n = elementLengths(ranges)
+        n = elementNROWS(ranges)
         bins = suppressWarnings(
             GRanges(rep(names(ranges), n),
             IRanges(start = unlist(ranges), width = size),

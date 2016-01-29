@@ -406,7 +406,7 @@ the same abundance.
 #+BEGIN_SRC R
   z = filterCalls(v_all, verdict %in% c("present", "inbetween", "dontknow"))
 
-  elementLengths(z)
+  elementNROWS(z)
 #+END_SRC
 
 #+BEGIN_SRC R :exports both :results output graphics :file platinum-compare-heat1.svg :session *R-devel* :width 7 :height 7 :ravel warning=FALSE :ravel fig.width=7, fig.height=7
