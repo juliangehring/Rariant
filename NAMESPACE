@@ -12,7 +12,7 @@ importFrom(VariantAnnotation, VRanges)
 importFrom(exomeCopy, subdivideGRanges)
 importFrom(SomaticSignatures, seqchar)
 importFrom(VGAM, logit)
-importFrom(dplyr, rbind_all)
+importFrom(dplyr, bind_rows)
 importFrom(reshape2, melt)
 
 export(acCi, nhsCi)

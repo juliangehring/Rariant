@@ -47,7 +47,7 @@ rariantFromBam <- function(test, control, region, beta = 0.95, alpha = 1 - beta,
     
     res = NULL ## must be set
     if(value & length(val) > 0) {
-        res = rbind_all(val) ## or unlist on a GRL
+        res = bind_rows(val) ## or unlist on a GRL
         #if(!is.null(res)) { ## TODO: needed?
         res = df2gr(res)
         #}
